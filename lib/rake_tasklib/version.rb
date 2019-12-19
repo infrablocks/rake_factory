@@ -1,3 +1,3 @@
-module RakeTasklib
+module RakeTaskLib
   VERSION = '0.0.1'
 end
