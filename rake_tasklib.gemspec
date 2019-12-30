@@ -24,11 +24,12 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.5.1'
 
+  spec.add_dependency 'rake', '~> 13.0'
+  spec.add_dependency 'activesupport', '~> 5.2'
+
   spec.add_development_dependency 'bundler', '~> 2.0'
-  spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.9'
   spec.add_development_dependency 'gem-release', '~> 2.0'
-  spec.add_development_dependency 'activesupport', '~> 5.2'
   spec.add_development_dependency 'fakefs', '~> 0.18'
   spec.add_development_dependency 'simplecov', '~> 0.16'
 end
