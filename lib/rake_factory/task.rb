@@ -1,29 +1,12 @@
 require 'rake/tasklib'
-require 'active_support'
-require 'active_support/core_ext/string/inflections'
 
-require_relative 'dsl'
+require_relative 'parameters'
+require_relative 'defaults'
 
 module RakeFactory
   class Task < ::Rake::TaskLib
-    extend DSL
-
-    attr_accessor(
-        :name,
-        :argument_names,
-        :prerequisites,
-        :order_only_prerequisites)
-
-    def self.inherited(inheritor)
-      inheritor.class_eval do
-        name = inheritor.name
-
-        default_name name.demodulize.underscore unless name.nil?
-        default_argument_names []
-        default_prerequisites []
-        default_order_only_prerequisites []
-      end
-    end
+    extend Parameters
+    extend Defaults
 
     def initialize(*args, &block)
       setup_defaults
@@ -34,8 +17,7 @@ module RakeFactory
     end
 
     def setup_defaults
-      self.class.defaults.apply_to(self)
-      self.class.parameters.apply_defaults_to(self)
+      self.class.parameter_set.apply_defaults_to(self)
     end
 
     def process_arguments(args)
@@ -52,7 +34,7 @@ module RakeFactory
     end
 
     def check_required
-      self.class.parameters.enforce_requirements_of(self)
+      self.class.parameter_set.enforce_requirements_of(self)
     end
 
     def define
