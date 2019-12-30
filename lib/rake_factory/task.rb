@@ -8,12 +8,10 @@ module RakeFactory
     extend Parameters
     extend Defaults
 
-    def initialize(*args, &block)
+    def initialize(*args, &configuration_block)
       setup_defaults
       process_arguments(args)
-      process_block(block)
-      check_required
-      define
+      define_task(&configuration_block)
     end
 
     def setup_defaults
@@ -29,15 +27,26 @@ module RakeFactory
       set_if_present(:order_only_prerequisites, opts)
     end
 
-    def process_block(block)
-      block.call(self) if block
+    def process_configuration_block(configuration_block, args)
+      if configuration_block
+        configuration_block.call(
+            *[self, args].slice(0, configuration_block.arity))
+      end
     end
 
     def check_required
       self.class.parameter_set.enforce_requirements_of(self)
     end
 
-    def define
+    def define_task(&configuration_block)
+      task(
+          name,
+          argument_names => prerequisites,
+          order_only: order_only_prerequisites
+      ) do |_, args|
+        process_configuration_block(configuration_block, args)
+        check_required
+      end
     end
 
     private

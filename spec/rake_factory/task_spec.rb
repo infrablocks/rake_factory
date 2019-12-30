@@ -27,15 +27,17 @@ describe RakeFactory::Task do
     expect(test_task.lettuce).to eq('crisp')
   end
 
-  it 'throws RequiredParameterUnset exception on initialisation if required ' +
+  it 'throws RequiredParameterUnset exception on execution if required ' +
       'parameters are nil' do
     class TestTaskEcf2 < RakeFactory::Task
       parameter :spinach, required: true
       parameter :lettuce, required: true
     end
 
+    test_task = TestTaskEcf2.new
+
     expect {
-      TestTaskEcf2.new
+      Rake::Task[test_task.name].invoke
     }.to raise_error { |error|
       expect(error).to be_a(RakeFactory::RequiredParameterUnset)
       expect(error.message).to match('spinach')
@@ -43,7 +45,7 @@ describe RakeFactory::Task do
     }
   end
 
-  it 'allows the provided block to configure the task' do
+  it 'allows the provided block to configure the task on execution' do
     class TestTaskE083 < RakeFactory::Task
       parameter :spinach
       parameter :lettuce
@@ -54,6 +56,8 @@ describe RakeFactory::Task do
       t.lettuce = 'green'
     end
 
+    Rake::Task[test_task.name].invoke
+
     expect(test_task.spinach).to eq('healthy')
     expect(test_task.lettuce).to eq('green')
   end
@@ -62,9 +66,9 @@ describe RakeFactory::Task do
     class TestTask0e90 < RakeFactory::Task
     end
 
-    test_task = TestTask0e90.new
+    TestTask0e90.new
 
-    expect(test_task.name).to(eq(:test_task0e90))
+    expect(Rake::Task.task_defined?(:test_task0e90)).to(be(true))
   end
 
   it 'uses the specified default name when provided' do
@@ -72,18 +76,18 @@ describe RakeFactory::Task do
       default_name :some_default_name
     end
 
-    test_task = TestTaskB781.new
+    TestTaskB781.new
 
-    expect(test_task.name).to(eq(:some_default_name))
+    expect(Rake::Task.task_defined?(:some_default_name)).to(be(true))
   end
 
   it 'uses the name passed in the options argument when supplied' do
     class TestTask46c8 < RakeFactory::Task
     end
 
-    test_task = TestTask46c8.new(name: :some_name)
+    TestTask46c8.new(name: :some_name)
 
-    expect(test_task.name).to(eq(:some_name))
+    expect(Rake::Task.task_defined?(:some_name)).to(be(true))
   end
 
   it 'overrides specified default name when name passed in the options ' +
@@ -92,9 +96,9 @@ describe RakeFactory::Task do
       default_name :some_default_name
     end
 
-    test_task = TestTask502f.new(name: :some_specific_name)
+    TestTask502f.new(name: :some_specific_name)
 
-    expect(test_task.name).to(eq(:some_specific_name))
+    expect(Rake::Task.task_defined?(:some_specific_name)).to(be(true))
   end
 
   it 'has no argument names by default' do
@@ -102,8 +106,9 @@ describe RakeFactory::Task do
     end
 
     test_task = TestTaskFb8b.new
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.argument_names).to(eq([]))
+    expect(rake_task.arg_names).to(eq([]))
   end
 
   it 'uses the specified argument names when provided' do
@@ -112,8 +117,9 @@ describe RakeFactory::Task do
     end
 
     test_task = TestTaskAa81.new
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.argument_names).to(eq([:first, :second]))
+    expect(rake_task.arg_names).to(eq([:first, :second]))
   end
 
   it 'uses the argument names passed in the options argument when supplied' do
@@ -122,8 +128,9 @@ describe RakeFactory::Task do
 
     test_task = TestTask10d6.new(
         argument_names: [:first_argument, :second_argument])
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.argument_names)
+    expect(rake_task.arg_names)
         .to(eq([:first_argument, :second_argument]))
   end
 
@@ -135,8 +142,9 @@ describe RakeFactory::Task do
 
     test_task = TestTask502f.new(
         argument_names: [:third, :fourth])
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.argument_names)
+    expect(rake_task.arg_names)
         .to(eq([:third, :fourth]))
   end
 
@@ -145,8 +153,9 @@ describe RakeFactory::Task do
     end
 
     test_task = TestTask72c1.new
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.prerequisites).to(eq([]))
+    expect(rake_task.prerequisites).to(eq([]))
   end
 
   it 'uses the specified prerequisites when provided' do
@@ -155,8 +164,9 @@ describe RakeFactory::Task do
     end
 
     test_task = TestTaskAa81.new
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.prerequisites).to(eq(["some:first", "some:second"]))
+    expect(rake_task.prerequisites).to(eq(["some:first", "some:second"]))
   end
 
   it 'uses the prerequisites passed in the options argument when supplied' do
@@ -164,8 +174,9 @@ describe RakeFactory::Task do
     end
 
     test_task = TestTask9f61.new(prerequisites: ["some:first", "some:second"])
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.prerequisites)
+    expect(rake_task.prerequisites)
         .to(eq(["some:first", "some:second"]))
   end
 
@@ -177,8 +188,9 @@ describe RakeFactory::Task do
 
     test_task = TestTaskCf83.new(
         prerequisites: ["some:third", "some:fourth"])
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.prerequisites)
+    expect(rake_task.prerequisites)
         .to(eq(["some:third", "some:fourth"]))
   end
 
@@ -187,8 +199,9 @@ describe RakeFactory::Task do
     end
 
     test_task = TestTaskB368.new
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.order_only_prerequisites).to(eq([]))
+    expect(rake_task.order_only_prerequisites).to(eq([]))
   end
 
   it 'uses the specified order only prerequisites when provided' do
@@ -197,8 +210,9 @@ describe RakeFactory::Task do
     end
 
     test_task = TestTask4ba6.new
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.order_only_prerequisites)
+    expect(rake_task.order_only_prerequisites)
         .to(eq(["some:first", "some:second"]))
   end
 
@@ -209,8 +223,9 @@ describe RakeFactory::Task do
 
     test_task = TestTaskA8d1.new(
         order_only_prerequisites: ["some:first", "some:second"])
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.order_only_prerequisites)
+    expect(rake_task.order_only_prerequisites)
         .to(eq(["some:first", "some:second"]))
   end
 
@@ -222,8 +237,9 @@ describe RakeFactory::Task do
 
     test_task = TestTaskE4d6.new(
         order_only_prerequisites: ["some:third", "some:fourth"])
+    rake_task = Rake::Task[test_task.name]
 
-    expect(test_task.order_only_prerequisites)
+    expect(rake_task.order_only_prerequisites)
         .to(eq(["some:third", "some:fourth"]))
   end
 end
