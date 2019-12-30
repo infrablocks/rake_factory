@@ -2,7 +2,7 @@ require_relative 'defaults'
 require_relative 'parameter'
 require_relative 'parameters'
 
-module RakeTaskLib
+module RakeFactory
   module DSL
     def defaults
       @defaults ||= Defaults.new

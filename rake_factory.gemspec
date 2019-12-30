@@ -1,18 +1,20 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'rake_tasklib/version'
+require 'rake_factory/version'
 
 Gem::Specification.new do |spec|
   spec.name = 'rake_tasklib'
-  spec.version = RakeTaskLib::VERSION
+  spec.version = RakeFactory::VERSION
   spec.authors = ['Toby Clemson']
   spec.email = ['tobyclemson@gmail.com']
 
-  spec.summary = 'An enhanced tasklib to aid in creating custom rake tasks.'
-  spec.description = 'Provides an enhanced tasklib base class to allow ' +
-      'declarative definition of rake tasks.'
-  spec.homepage = 'https://github.com/infrablocks/rake_tasklib'
+  spec.summary =
+      'Base classes and modules to aid in creating custom rake tasks.'
+  spec.description =
+      'Provides base classes and modules to allow declarative definition of ' +
+          'rake tasks.'
+  spec.homepage = 'https://github.com/infrablocks/rake_factory'
   spec.license = 'MIT'
 
   spec.files = `git ls-files -z`.split("\x0").reject do |f|

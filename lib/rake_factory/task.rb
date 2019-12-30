@@ -4,7 +4,7 @@ require 'active_support/core_ext/string/inflections'
 
 require_relative 'dsl'
 
-module RakeTaskLib
+module RakeFactory
   class Task < ::Rake::TaskLib
     extend DSL
 

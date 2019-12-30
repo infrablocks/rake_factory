@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe RakeTaskLib::Task do
+describe RakeFactory::Task do
   it 'adds an attribute reader and writer for each parameter specified' do
-    class TestTask5ae0 < RakeTaskLib::Task
+    class TestTask5ae0 < RakeFactory::Task
       parameter :spinach
       parameter :lettuce
     end
@@ -16,7 +16,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'defaults the parameters to the provided defaults when not specified' do
-    class TestTask2fbb < RakeTaskLib::Task
+    class TestTask2fbb < RakeFactory::Task
       parameter :spinach, default: 'green'
       parameter :lettuce, default: 'crisp'
     end
@@ -29,7 +29,7 @@ describe RakeTaskLib::Task do
 
   it 'throws RequiredParameterUnset exception on initialisation if required ' +
       'parameters are nil' do
-    class TestTaskEcf2 < RakeTaskLib::Task
+    class TestTaskEcf2 < RakeFactory::Task
       parameter :spinach, required: true
       parameter :lettuce, required: true
     end
@@ -37,14 +37,14 @@ describe RakeTaskLib::Task do
     expect {
       TestTaskEcf2.new
     }.to raise_error { |error|
-      expect(error).to be_a(RakeTaskLib::RequiredParameterUnset)
+      expect(error).to be_a(RakeFactory::RequiredParameterUnset)
       expect(error.message).to match('spinach')
       expect(error.message).to match('lettuce')
     }
   end
 
   it 'allows the provided block to configure the task' do
-    class TestTaskE083 < RakeTaskLib::Task
+    class TestTaskE083 < RakeFactory::Task
       parameter :spinach
       parameter :lettuce
     end
@@ -59,7 +59,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'uses the name of the class as task name by default' do
-    class TestTask0e90 < RakeTaskLib::Task
+    class TestTask0e90 < RakeFactory::Task
     end
 
     test_task = TestTask0e90.new
@@ -68,7 +68,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'uses the specified default name when provided' do
-    class TestTaskB781 < RakeTaskLib::Task
+    class TestTaskB781 < RakeFactory::Task
       default_name :some_default_name
     end
 
@@ -78,7 +78,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'uses the name passed in the options argument when supplied' do
-    class TestTask46c8 < RakeTaskLib::Task
+    class TestTask46c8 < RakeFactory::Task
     end
 
     test_task = TestTask46c8.new(name: :some_name)
@@ -88,7 +88,7 @@ describe RakeTaskLib::Task do
 
   it 'overrides specified default name when name passed in the options ' +
       'argument' do
-    class TestTask502f < RakeTaskLib::Task
+    class TestTask502f < RakeFactory::Task
       default_name :some_default_name
     end
 
@@ -98,7 +98,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'has no argument names by default' do
-    class TestTaskFb8b < RakeTaskLib::Task
+    class TestTaskFb8b < RakeFactory::Task
     end
 
     test_task = TestTaskFb8b.new
@@ -107,7 +107,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'uses the specified argument names when provided' do
-    class TestTaskAa81 < RakeTaskLib::Task
+    class TestTaskAa81 < RakeFactory::Task
       default_argument_names [:first, :second]
     end
 
@@ -117,7 +117,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'uses the argument names passed in the options argument when supplied' do
-    class TestTask10d6 < RakeTaskLib::Task
+    class TestTask10d6 < RakeFactory::Task
     end
 
     test_task = TestTask10d6.new(
@@ -129,7 +129,7 @@ describe RakeTaskLib::Task do
 
   it 'overrides specified default argument names when argument names passed ' +
       'in the options argument' do
-    class TestTask502f < RakeTaskLib::Task
+    class TestTask502f < RakeFactory::Task
       default_argument_names [:first, :second]
     end
 
@@ -141,7 +141,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'has no prerequisites by default' do
-    class TestTask72c1 < RakeTaskLib::Task
+    class TestTask72c1 < RakeFactory::Task
     end
 
     test_task = TestTask72c1.new
@@ -150,7 +150,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'uses the specified prerequisites when provided' do
-    class TestTaskAa81 < RakeTaskLib::Task
+    class TestTaskAa81 < RakeFactory::Task
       default_prerequisites ["some:first", "some:second"]
     end
 
@@ -160,7 +160,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'uses the prerequisites passed in the options argument when supplied' do
-    class TestTask9f61 < RakeTaskLib::Task
+    class TestTask9f61 < RakeFactory::Task
     end
 
     test_task = TestTask9f61.new(prerequisites: ["some:first", "some:second"])
@@ -171,7 +171,7 @@ describe RakeTaskLib::Task do
 
   it 'overrides specified prerequisites when prerequisites passed in the ' +
       'options argument' do
-    class TestTaskCf83 < RakeTaskLib::Task
+    class TestTaskCf83 < RakeFactory::Task
       default_prerequisites ["some:first", "some:second"]
     end
 
@@ -183,7 +183,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'has no order only prerequisites by default' do
-    class TestTaskB368 < RakeTaskLib::Task
+    class TestTaskB368 < RakeFactory::Task
     end
 
     test_task = TestTaskB368.new
@@ -192,7 +192,7 @@ describe RakeTaskLib::Task do
   end
 
   it 'uses the specified order only prerequisites when provided' do
-    class TestTask4ba6 < RakeTaskLib::Task
+    class TestTask4ba6 < RakeFactory::Task
       default_order_only_prerequisites ["some:first", "some:second"]
     end
 
@@ -204,7 +204,7 @@ describe RakeTaskLib::Task do
 
   it 'uses the order only prerequisites passed in the options argument ' +
       'when supplied' do
-    class TestTaskA8d1 < RakeTaskLib::Task
+    class TestTaskA8d1 < RakeFactory::Task
     end
 
     test_task = TestTaskA8d1.new(
@@ -216,7 +216,7 @@ describe RakeTaskLib::Task do
 
   it 'overrides specified order only prerequisites when order only ' +
       'prerequisites passed in the options argument' do
-    class TestTaskE4d6 < RakeTaskLib::Task
+    class TestTaskE4d6 < RakeFactory::Task
       default_order_only_prerequisites ["some:first", "some:second"]
     end
 

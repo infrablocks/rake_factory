@@ -1,4 +1,4 @@
-module RakeTaskLib
+module RakeFactory
   class Defaults
     attr_reader :name
     attr_accessor(

@@ -1,6 +1,6 @@
 require_relative 'exceptions'
 
-module RakeTaskLib
+module RakeFactory
   class Parameters
     def initialize
       @parameters = {}

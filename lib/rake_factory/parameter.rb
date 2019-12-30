@@ -1,4 +1,4 @@
-module RakeTaskLib
+module RakeFactory
   class Parameter
     attr_reader :name
 

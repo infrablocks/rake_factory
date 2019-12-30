@@ -6,7 +6,7 @@ require 'bundler/setup'
 require 'rake'
 require 'support/shared_contexts/rake'
 
-require 'rake_tasklib'
+require 'rake_factory'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

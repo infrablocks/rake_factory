@@ -1,13 +1,13 @@
-# RakeTasklib
+# RakeFactory
 
-An enhanced tasklib to aid in creating custom rake tasks.
+Base classes and modules to aid in creating custom rake tasks.
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'rake_tasklib'
+gem 'rake_factory'
 ```
 
 And then execute:
@@ -16,7 +16,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install rake_tasklib
+    $ gem install rake_factory
 
 ## Usage
 
@@ -60,7 +60,7 @@ openssl aes-256-cbc \
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at 
-https://github.com/infrablocks/rake_tasklib. This project is intended to be a
+https://github.com/infrablocks/rake_factory. This project is intended to be a
 safe, welcoming space for collaboration, and contributors are expected to adhere
 to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
