@@ -244,6 +244,53 @@ describe RakeFactory::Task do
         .to(eq(["some:third", "some:fourth"]))
   end
 
+  it 'does not set a description on the task by default' do
+    class TestTask1eb3 < RakeFactory::Task
+    end
+
+    test_task = TestTask1eb3.define
+    rake_task = Rake::Task[test_task.name]
+
+    expect(rake_task.comment).to(be_nil)
+  end
+
+  it 'uses the specified default description when provided' do
+    class TestTaskBd2b < RakeFactory::Task
+      default_description "Some task that does some thing."
+    end
+
+    test_task = TestTaskBd2b.define
+    rake_task = Rake::Task[test_task.name]
+
+    expect(rake_task.full_comment).to(eq("Some task that does some thing."))
+  end
+
+  it 'uses the description passed in the options argument when supplied' do
+    class TestTask9531 < RakeFactory::Task
+    end
+
+    test_task = TestTask9531.define(
+        description: "Some task that does a specific thing.")
+    rake_task = Rake::Task[test_task.name]
+
+    expect(rake_task.full_comment)
+        .to(eq("Some task that does a specific thing."))
+  end
+
+  it 'overrides specified default name when name passed in the options ' +
+      'argument' do
+    class TestTaskCa72 < RakeFactory::Task
+      default_description "Some task that does some thing."
+    end
+
+    test_task = TestTaskCa72.define(
+        description: "Some task that does a specific thing.")
+    rake_task = Rake::Task[test_task.name]
+
+    expect(rake_task.full_comment)
+        .to(eq("Some task that does a specific thing."))
+  end
+
   it 'allows actions to be defined on the task' do
     action_arguments = {}
 

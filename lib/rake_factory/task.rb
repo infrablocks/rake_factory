@@ -13,7 +13,7 @@ module RakeFactory
     attr_accessor(:configuration_block)
 
     def self.inherited(inheritor)
-      super
+      super(inheritor)
       inheritor.singleton_class.class_eval do
         define_method :define do |*args, &block|
           inheritor.new(*args, &block).define_on(Rake.application)
@@ -38,6 +38,7 @@ module RakeFactory
       set_if_option_present(:argument_names, opts)
       set_if_option_present(:prerequisites, opts)
       set_if_option_present(:order_only_prerequisites, opts)
+      set_if_option_present(:description, opts)
     end
 
     def process_configuration_block(configuration_block)
@@ -62,7 +63,7 @@ module RakeFactory
     end
 
     def define_on(application)
-      application.define_task(
+      task = application.define_task(
           Rake::Task,
           name,
           argument_names => prerequisites,
@@ -72,6 +73,7 @@ module RakeFactory
         check_parameter_requirements
         invoke_actions(args)
       end
+      task.add_description(description)
       self
     end
 

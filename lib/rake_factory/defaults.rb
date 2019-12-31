@@ -8,11 +8,13 @@ module RakeFactory
     include Parameters
 
     def inherited(inheritor)
+      super(inheritor)
       inheritor.class_eval do
         parameter :name, transform: lambda { |n| n.to_sym }
         parameter :argument_names, default: []
         parameter :prerequisites, default: []
         parameter :order_only_prerequisites, default: []
+        parameter :description
 
         unless inheritor.name.nil?
           default_name inheritor.name.demodulize.underscore
@@ -36,6 +38,10 @@ module RakeFactory
       parameter_set
           .update_default_for(
               :order_only_prerequisites, order_only_prerequisites)
+    end
+
+    def default_description(description)
+      parameter_set.update_default_for(:description, description)
     end
   end
 end
