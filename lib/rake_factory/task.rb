@@ -1,11 +1,13 @@
 require 'rake/tasklib'
 
 require_relative 'parameters'
+require_relative 'actions'
 require_relative 'defaults'
 
 module RakeFactory
   class Task < ::Rake::TaskLib
     extend Parameters
+    extend Actions
     extend Defaults
 
     attr_accessor(:configuration_block)
@@ -49,6 +51,12 @@ module RakeFactory
       end
     end
 
+    def invoke_actions(args)
+      self.class.actions.each do |action|
+        action.call(*[self, args].slice(0, action.arity))
+      end
+    end
+
     def check_parameter_requirements
       self.class.parameter_set.enforce_requirements_on(self)
     end
@@ -62,6 +70,7 @@ module RakeFactory
       ) do |_, args|
         invoke_configuration_block(args)
         check_parameter_requirements
+        invoke_actions(args)
       end
       self
     end

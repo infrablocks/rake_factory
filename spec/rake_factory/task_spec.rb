@@ -243,4 +243,26 @@ describe RakeFactory::Task do
     expect(rake_task.order_only_prerequisites)
         .to(eq(["some:third", "some:fourth"]))
   end
+
+  it 'allows actions to be defined on the task' do
+    action_arguments = {}
+
+    task_klass = Class.new(RakeFactory::Task) do
+      default_argument_names [:first, :second]
+
+      action { action_arguments[:first] = [] }
+      action { |t| action_arguments[:second] = [t] }
+      action { |t, args| action_arguments[:third] = [t, args] }
+    end
+
+    test_task = task_klass.define(name: :test_task)
+    rake_task = Rake::Task[test_task.name]
+
+    rake_task.invoke("1", "2")
+
+    expect(action_arguments[:first]).to(eq([]))
+    expect(action_arguments[:second]).to(eq([test_task]))
+    expect(action_arguments[:third])
+        .to(match([test_task, hash_including(first: "1", second: "2")]))
+  end
 end
