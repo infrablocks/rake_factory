@@ -27,7 +27,7 @@ module RakeFactory
       end
     end
 
-    def enforce_requirements_of(instance)
+    def enforce_requirements_on(instance)
       dissatisfied = @parameter_set.values.reject do |parameter|
         parameter.satisfied_by?(instance)
       end

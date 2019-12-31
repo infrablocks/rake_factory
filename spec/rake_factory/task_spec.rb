@@ -7,7 +7,7 @@ describe RakeFactory::Task do
       parameter :lettuce
     end
 
-    test_task = TestTask5ae0.new
+    test_task = TestTask5ae0.define
     test_task.spinach = 'healthy'
     test_task.lettuce = 'dull'
 
@@ -21,7 +21,7 @@ describe RakeFactory::Task do
       parameter :lettuce, default: 'crisp'
     end
 
-    test_task = TestTask2fbb.new
+    test_task = TestTask2fbb.define
 
     expect(test_task.spinach).to eq('green')
     expect(test_task.lettuce).to eq('crisp')
@@ -34,7 +34,7 @@ describe RakeFactory::Task do
       parameter :lettuce, required: true
     end
 
-    test_task = TestTaskEcf2.new
+    test_task = TestTaskEcf2.define
 
     expect {
       Rake::Task[test_task.name].invoke
@@ -51,7 +51,7 @@ describe RakeFactory::Task do
       parameter :lettuce
     end
 
-    test_task = TestTaskE083.new do |t|
+    test_task = TestTaskE083.define do |t|
       t.spinach = 'healthy'
       t.lettuce = 'green'
     end
@@ -66,7 +66,7 @@ describe RakeFactory::Task do
     class TestTask0e90 < RakeFactory::Task
     end
 
-    TestTask0e90.new
+    TestTask0e90.define
 
     expect(Rake::Task.task_defined?(:test_task0e90)).to(be(true))
   end
@@ -76,7 +76,7 @@ describe RakeFactory::Task do
       default_name :some_default_name
     end
 
-    TestTaskB781.new
+    TestTaskB781.define
 
     expect(Rake::Task.task_defined?(:some_default_name)).to(be(true))
   end
@@ -85,7 +85,7 @@ describe RakeFactory::Task do
     class TestTask46c8 < RakeFactory::Task
     end
 
-    TestTask46c8.new(name: :some_name)
+    TestTask46c8.define(name: :some_name)
 
     expect(Rake::Task.task_defined?(:some_name)).to(be(true))
   end
@@ -96,7 +96,7 @@ describe RakeFactory::Task do
       default_name :some_default_name
     end
 
-    TestTask502f.new(name: :some_specific_name)
+    TestTask502f.define(name: :some_specific_name)
 
     expect(Rake::Task.task_defined?(:some_specific_name)).to(be(true))
   end
@@ -105,7 +105,7 @@ describe RakeFactory::Task do
     class TestTaskFb8b < RakeFactory::Task
     end
 
-    test_task = TestTaskFb8b.new
+    test_task = TestTaskFb8b.define
     rake_task = Rake::Task[test_task.name]
 
     expect(rake_task.arg_names).to(eq([]))
@@ -116,7 +116,7 @@ describe RakeFactory::Task do
       default_argument_names [:first, :second]
     end
 
-    test_task = TestTaskAa81.new
+    test_task = TestTaskAa81.define
     rake_task = Rake::Task[test_task.name]
 
     expect(rake_task.arg_names).to(eq([:first, :second]))
@@ -126,7 +126,7 @@ describe RakeFactory::Task do
     class TestTask10d6 < RakeFactory::Task
     end
 
-    test_task = TestTask10d6.new(
+    test_task = TestTask10d6.define(
         argument_names: [:first_argument, :second_argument])
     rake_task = Rake::Task[test_task.name]
 
@@ -140,7 +140,7 @@ describe RakeFactory::Task do
       default_argument_names [:first, :second]
     end
 
-    test_task = TestTask502f.new(
+    test_task = TestTask502f.define(
         argument_names: [:third, :fourth])
     rake_task = Rake::Task[test_task.name]
 
@@ -152,7 +152,7 @@ describe RakeFactory::Task do
     class TestTask72c1 < RakeFactory::Task
     end
 
-    test_task = TestTask72c1.new
+    test_task = TestTask72c1.define
     rake_task = Rake::Task[test_task.name]
 
     expect(rake_task.prerequisites).to(eq([]))
@@ -163,7 +163,7 @@ describe RakeFactory::Task do
       default_prerequisites ["some:first", "some:second"]
     end
 
-    test_task = TestTaskAa81.new
+    test_task = TestTaskAa81.define
     rake_task = Rake::Task[test_task.name]
 
     expect(rake_task.prerequisites).to(eq(["some:first", "some:second"]))
@@ -173,7 +173,8 @@ describe RakeFactory::Task do
     class TestTask9f61 < RakeFactory::Task
     end
 
-    test_task = TestTask9f61.new(prerequisites: ["some:first", "some:second"])
+    test_task = TestTask9f61.define(
+        prerequisites: ["some:first", "some:second"])
     rake_task = Rake::Task[test_task.name]
 
     expect(rake_task.prerequisites)
@@ -186,7 +187,7 @@ describe RakeFactory::Task do
       default_prerequisites ["some:first", "some:second"]
     end
 
-    test_task = TestTaskCf83.new(
+    test_task = TestTaskCf83.define(
         prerequisites: ["some:third", "some:fourth"])
     rake_task = Rake::Task[test_task.name]
 
@@ -198,7 +199,7 @@ describe RakeFactory::Task do
     class TestTaskB368 < RakeFactory::Task
     end
 
-    test_task = TestTaskB368.new
+    test_task = TestTaskB368.define
     rake_task = Rake::Task[test_task.name]
 
     expect(rake_task.order_only_prerequisites).to(eq([]))
@@ -209,7 +210,7 @@ describe RakeFactory::Task do
       default_order_only_prerequisites ["some:first", "some:second"]
     end
 
-    test_task = TestTask4ba6.new
+    test_task = TestTask4ba6.define
     rake_task = Rake::Task[test_task.name]
 
     expect(rake_task.order_only_prerequisites)
@@ -221,7 +222,7 @@ describe RakeFactory::Task do
     class TestTaskA8d1 < RakeFactory::Task
     end
 
-    test_task = TestTaskA8d1.new(
+    test_task = TestTaskA8d1.define(
         order_only_prerequisites: ["some:first", "some:second"])
     rake_task = Rake::Task[test_task.name]
 
@@ -235,7 +236,7 @@ describe RakeFactory::Task do
       default_order_only_prerequisites ["some:first", "some:second"]
     end
 
-    test_task = TestTaskE4d6.new(
+    test_task = TestTaskE4d6.define(
         order_only_prerequisites: ["some:third", "some:fourth"])
     rake_task = Rake::Task[test_task.name]
 
