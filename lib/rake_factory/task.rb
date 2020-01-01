@@ -1,6 +1,7 @@
 require 'rake/tasklib'
 
 require_relative 'parameters'
+require_relative 'parameter_view'
 require_relative 'actions'
 require_relative 'defaults'
 
@@ -47,8 +48,9 @@ module RakeFactory
 
     def invoke_configuration_block(args)
       if configuration_block
+        view = ParameterView.new(self)
         configuration_block.call(
-            *[self, args].slice(0, configuration_block.arity))
+            *[view, args].slice(0, configuration_block.arity))
       end
     end
 

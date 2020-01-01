@@ -10,11 +10,20 @@ module RakeFactory
     def inherited(inheritor)
       super(inheritor)
       inheritor.class_eval do
-        parameter :name, transform: lambda { |n| n.to_sym }
-        parameter :argument_names, default: []
-        parameter :prerequisites, default: []
-        parameter :order_only_prerequisites, default: []
-        parameter :description
+        parameter(:name,
+            configurable: false,
+            transform: lambda { |n| n.to_sym })
+        parameter(:argument_names,
+            configurable: false,
+            default: [])
+        parameter(:prerequisites,
+            configurable: false,
+            default: [])
+        parameter(:order_only_prerequisites,
+            configurable: false,
+            default: [])
+        parameter(:description,
+            configurable: false)
 
         unless inheritor.name.nil?
           default_name inheritor.name.demodulize.underscore

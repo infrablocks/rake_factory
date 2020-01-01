@@ -17,6 +17,10 @@ module RakeFactory
       @parameter_set[name.to_sym]
     end
 
+    def where_configurable
+      @parameter_set.values.select { |p| p.configurable? }
+    end
+
     def update_default_for(name, value)
       find(name).default = value
     end

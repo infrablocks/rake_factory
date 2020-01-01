@@ -1,12 +1,19 @@
 module RakeFactory
   class Parameter
-    attr_reader(:name, :default, :required, :transform)
+    attr_reader(
+        :name,
+        :default,
+        :required,
+        :configurable,
+        :transform)
     attr_writer(:default)
 
     def initialize(name, options)
       @name = name
       @default = options[:default] || nil
       @required = options[:required] || false
+      @configurable =
+          options[:configurable].nil? ? true : !!options[:configurable]
       @transform = options[:transform] || lambda { |x| x }
     end
 
@@ -36,6 +43,10 @@ module RakeFactory
 
     def apply_default_to(instance)
       instance.send(writer_method, @default) unless @default.nil?
+    end
+
+    def configurable?
+      @configurable
     end
 
     def dissatisfied_by?(instance)

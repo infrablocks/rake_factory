@@ -101,6 +101,22 @@ describe RakeFactory::Task do
     expect(Rake::Task.task_defined?(:some_specific_name)).to(be(true))
   end
 
+  it 'does not allow the name to be configured in the configuration block' do
+    class TestTaskFe1e < RakeFactory::Task
+    end
+
+    test_task = TestTaskFe1e.define do |t|
+      t.name = :some_name
+    end
+
+    expect {
+      Rake::Task[test_task.name].invoke
+    }.to raise_error { |error|
+      expect(error).to be_a(NoMethodError)
+      expect(error.message).to match('name')
+    }
+  end
+
   it 'has no argument names by default' do
     class TestTaskFb8b < RakeFactory::Task
     end
@@ -148,6 +164,23 @@ describe RakeFactory::Task do
         .to(eq([:third, :fourth]))
   end
 
+  it 'does not allow the argument names to be configured in the ' +
+      'configuration block' do
+    class TestTask6168 < RakeFactory::Task
+    end
+
+    test_task = TestTask6168.define do |t|
+      t.argument_names = [:first, :second]
+    end
+
+    expect {
+      Rake::Task[test_task.name].invoke
+    }.to raise_error { |error|
+      expect(error).to be_a(NoMethodError)
+      expect(error.message).to match('argument_names=')
+    }
+  end
+
   it 'has no prerequisites by default' do
     class TestTask72c1 < RakeFactory::Task
     end
@@ -193,6 +226,23 @@ describe RakeFactory::Task do
 
     expect(rake_task.prerequisites)
         .to(eq(["some:third", "some:fourth"]))
+  end
+
+  it 'does not allow the prerequisites to be configured in the ' +
+      'configuration block' do
+    class TestTask78eb < RakeFactory::Task
+    end
+
+    test_task = TestTask78eb.define do |t|
+      t.prerequisites = ["some:first", "some:second"]
+    end
+
+    expect {
+      Rake::Task[test_task.name].invoke
+    }.to raise_error { |error|
+      expect(error).to be_a(NoMethodError)
+      expect(error.message).to match('prerequisites=')
+    }
   end
 
   it 'has no order only prerequisites by default' do
@@ -244,6 +294,23 @@ describe RakeFactory::Task do
         .to(eq(["some:third", "some:fourth"]))
   end
 
+  it 'does not allow the order only prerequisites to be configured in the ' +
+      'configuration block' do
+    class TestTask863f < RakeFactory::Task
+    end
+
+    test_task = TestTask863f.define do |t|
+      t.order_only_prerequisites = ["some:first", "some:second"]
+    end
+
+    expect {
+      Rake::Task[test_task.name].invoke
+    }.to raise_error { |error|
+      expect(error).to be_a(NoMethodError)
+      expect(error.message).to match('order_only_prerequisites=')
+    }
+  end
+
   it 'does not set a description on the task by default' do
     class TestTask1eb3 < RakeFactory::Task
     end
@@ -289,6 +356,23 @@ describe RakeFactory::Task do
 
     expect(rake_task.full_comment)
         .to(eq("Some task that does a specific thing."))
+  end
+
+  it 'does not allow the description to be configured in the ' +
+      'configuration block' do
+    class TestTask0c7b < RakeFactory::Task
+    end
+
+    test_task = TestTask0c7b.define do |t|
+      t.description = "Some task description."
+    end
+
+    expect {
+      Rake::Task[test_task.name].invoke
+    }.to raise_error { |error|
+      expect(error).to be_a(NoMethodError)
+      expect(error.message).to match('description=')
+    }
   end
 
   it 'allows actions to be defined on the task' do
