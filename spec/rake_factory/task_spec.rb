@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe RakeFactory::Task do
+  include_context :rake
+
   it 'adds an attribute reader and writer for each parameter specified' do
     class TestTask5ae0 < RakeFactory::Task
       parameter :spinach
@@ -117,6 +119,23 @@ describe RakeFactory::Task do
     }
   end
 
+  it 'allows the name to be read in the configuration block' do
+    class TestTask6825 < RakeFactory::Task
+      default_name :some_default_name
+
+      parameter :some_parameter
+    end
+
+    test_task = TestTask6825.define(name: :some_specific_name) do |t|
+      t.some_parameter = "#{t.name}_parameter"
+    end
+    rake_task = Rake::Task[test_task.name]
+    rake_task.invoke
+
+    expect(test_task.some_parameter)
+        .to(eq('some_specific_name_parameter'))
+  end
+
   it 'has no argument names by default' do
     class TestTaskFb8b < RakeFactory::Task
     end
@@ -152,11 +171,11 @@ describe RakeFactory::Task do
 
   it 'overrides specified default argument names when argument names passed ' +
       'in the options argument' do
-    class TestTask502f < RakeFactory::Task
+    class TestTask678d < RakeFactory::Task
       default_argument_names [:first, :second]
     end
 
-    test_task = TestTask502f.define(
+    test_task = TestTask678d.define(
         argument_names: [:third, :fourth])
     rake_task = Rake::Task[test_task.name]
 
@@ -181,6 +200,23 @@ describe RakeFactory::Task do
     }
   end
 
+  it 'allows the argument names to be read in the configuration block' do
+    class TestTask89c0 < RakeFactory::Task
+      default_argument_names [:first, :second]
+
+      parameter :some_parameter
+    end
+
+    test_task = TestTask89c0.define(argument_names: [:third, :fourth]) do |t|
+      t.some_parameter = t.argument_names.concat([:fifth, :sixth])
+    end
+    rake_task = Rake::Task[test_task.name]
+    rake_task.invoke
+
+    expect(test_task.some_parameter)
+        .to(eq([:third, :fourth, :fifth, :sixth]))
+  end
+
   it 'has no prerequisites by default' do
     class TestTask72c1 < RakeFactory::Task
     end
@@ -192,11 +228,11 @@ describe RakeFactory::Task do
   end
 
   it 'uses the specified prerequisites when provided' do
-    class TestTaskAa81 < RakeFactory::Task
+    class TestTask74b7 < RakeFactory::Task
       default_prerequisites ["some:first", "some:second"]
     end
 
-    test_task = TestTaskAa81.define
+    test_task = TestTask74b7.define
     rake_task = Rake::Task[test_task.name]
 
     expect(rake_task.prerequisites).to(eq(["some:first", "some:second"]))
@@ -243,6 +279,30 @@ describe RakeFactory::Task do
       expect(error).to be_a(NoMethodError)
       expect(error.message).to match('prerequisites=')
     }
+  end
+
+  it 'allows the prerequisites to be read in the configuration block' do
+    namespace :some do
+      task :third
+      task :fourth
+    end
+
+    class TestTask77fa < RakeFactory::Task
+      default_prerequisites ["some:first", "some:second"]
+
+      parameter :some_parameter
+    end
+
+    test_task = TestTask77fa.define(
+        prerequisites: ["some:third", "some:fourth"]
+    ) do |t|
+      t.some_parameter = t.prerequisites.concat(["some:fifth", "some:sixth"])
+    end
+    rake_task = Rake::Task[test_task.name]
+    rake_task.invoke
+
+    expect(test_task.some_parameter)
+        .to(eq(["some:third", "some:fourth", "some:fifth", "some:sixth"]))
   end
 
   it 'has no order only prerequisites by default' do
@@ -311,6 +371,32 @@ describe RakeFactory::Task do
     }
   end
 
+  it 'allows the order only prerequisites to be read in the configuration ' +
+      'block' do
+    namespace :some do
+      task :third
+      task :fourth
+    end
+
+    class TestTaskE846 < RakeFactory::Task
+      default_order_only_prerequisites ["some:first", "some:second"]
+
+      parameter :some_parameter
+    end
+
+    test_task = TestTaskE846.define(
+        order_only_prerequisites: ["some:third", "some:fourth"]
+    ) do |t|
+      t.some_parameter =
+          t.order_only_prerequisites.concat(["some:fifth", "some:sixth"])
+    end
+    rake_task = Rake::Task[test_task.name]
+    rake_task.invoke
+
+    expect(test_task.some_parameter)
+        .to(eq(["some:third", "some:fourth", "some:fifth", "some:sixth"]))
+  end
+
   it 'does not set a description on the task by default' do
     class TestTask1eb3 < RakeFactory::Task
     end
@@ -373,6 +459,26 @@ describe RakeFactory::Task do
       expect(error).to be_a(NoMethodError)
       expect(error.message).to match('description=')
     }
+  end
+
+  it 'allows the description to be read in the configuration ' +
+      'block' do
+    class TestTask6452 < RakeFactory::Task
+      default_description "Some default description"
+
+      parameter :some_parameter
+    end
+
+    test_task = TestTask6452.define(
+        description: "Some specific description"
+    ) do |t|
+      t.some_parameter = "Parameter for: #{t.description}"
+    end
+    rake_task = Rake::Task[test_task.name]
+    rake_task.invoke
+
+    expect(test_task.some_parameter)
+        .to(eq("Parameter for: Some specific description"))
   end
 
   it 'allows actions to be defined on the task' do
