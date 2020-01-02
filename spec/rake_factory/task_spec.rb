@@ -47,6 +47,31 @@ describe RakeFactory::Task do
     }
   end
 
+  it 'sets parameters when passed to define' do
+    class TestTask6b63 < RakeFactory::Task
+      parameter :spinach
+      parameter :lettuce
+    end
+
+    test_task = TestTask6b63.define(spinach: 'green', lettuce: 'crisp')
+
+    expect(test_task.spinach).to(eq('green'))
+    expect(test_task.lettuce).to(eq('crisp'))
+  end
+
+  it 'ignores unknown parameters passed to define' do
+    class TestTask6b63 < RakeFactory::Task
+      parameter :spinach
+      parameter :lettuce
+    end
+
+    test_task = TestTask6b63.define(cabbage: 'yummy', lettuce: 'crisp')
+
+    expect(test_task).not_to(respond_to(:cabbage))
+    expect(test_task.spinach).to(eq(nil))
+    expect(test_task.lettuce).to(eq('crisp'))
+  end
+
   it 'allows the provided block to configure the task on execution' do
     class TestTaskE083 < RakeFactory::Task
       parameter :spinach
@@ -62,6 +87,24 @@ describe RakeFactory::Task do
 
     expect(test_task.spinach).to eq('healthy')
     expect(test_task.lettuce).to eq('green')
+  end
+
+  it 'passes provided arguments to configuration block when requested' do
+    class TestTaskE083 < RakeFactory::Task
+      parameter :spinach
+      parameter :lettuce
+    end
+
+    test_task = TestTaskE083
+        .define(argument_names: [:a, :b]) do |t, args|
+      t.spinach = "healthy-#{args.a}"
+      t.lettuce = "green-#{args.b}"
+    end
+
+    Rake::Task[test_task.name].invoke("colour", "fresh")
+
+    expect(test_task.spinach).to eq('healthy-colour')
+    expect(test_task.lettuce).to eq('green-fresh')
   end
 
   it 'uses the name of the class as task name by default' do

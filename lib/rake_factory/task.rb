@@ -34,12 +34,7 @@ module RakeFactory
 
     def process_arguments(args)
       opts = args.first || {}
-
-      set_if_option_present(:name, opts)
-      set_if_option_present(:argument_names, opts)
-      set_if_option_present(:prerequisites, opts)
-      set_if_option_present(:order_only_prerequisites, opts)
-      set_if_option_present(:description, opts)
+      opts.each { |key, value| set_if_value_present(key, value) }
     end
 
     def process_configuration_block(configuration_block)
@@ -54,14 +49,14 @@ module RakeFactory
       end
     end
 
+    def check_parameter_requirements
+      self.class.parameter_set.enforce_requirements_on(self)
+    end
+
     def invoke_actions(args)
       self.class.actions.each do |action|
         action.call(*[self, args].slice(0, action.arity))
       end
-    end
-
-    def check_parameter_requirements
-      self.class.parameter_set.enforce_requirements_on(self)
     end
 
     def define_on(application)
@@ -81,12 +76,10 @@ module RakeFactory
 
     private
 
-    def set_if_option_present(key, opts)
-      set_if_value_present(key, opts[key])
-    end
-
     def set_if_value_present(key, value)
-      self.send("#{key}=", value) unless value.nil?
+      if self.respond_to?("#{key}=") && !value.nil?
+        self.send("#{key}=", value)
+      end
     end
   end
 end
