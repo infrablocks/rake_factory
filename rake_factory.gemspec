@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'rake_factory/version'
 
 Gem::Specification.new do |spec|
-  spec.name = 'rake_tasklib'
+  spec.name = 'rake_factory'
   spec.version = RakeFactory::VERSION
   spec.authors = ['Toby Clemson']
   spec.email = ['tobyclemson@gmail.com']

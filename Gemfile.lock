@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rake_tasklib (0.0.1)
+    rake_factory (0.0.1)
       activesupport (~> 5.2)
       rake (~> 13.0)
 
@@ -52,7 +52,7 @@ DEPENDENCIES
   bundler (~> 2.0)
   fakefs (~> 0.18)
   gem-release (~> 2.0)
-  rake_tasklib!
+  rake_factory!
   rspec (~> 3.9)
   simplecov (~> 0.16)
 
