@@ -584,4 +584,19 @@ describe RakeFactory::Task do
     expect(action_arguments[:third])
         .to(match([test_task, hash_including(first: "1", second: "2")]))
   end
+
+  it 'exposes FileUtils methods to actions' do
+    task_klass = Class.new(RakeFactory::Task) do
+      action do
+        mkdir_p "example/path"
+      end
+    end
+
+    test_task = task_klass.define(name: :test_task)
+    rake_task = Rake::Task[test_task.name]
+
+    expect(test_task).to(receive(:mkdir_p).with("example/path"))
+
+    rake_task.invoke
+  end
 end

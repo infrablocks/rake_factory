@@ -55,7 +55,7 @@ module RakeFactory
 
     def invoke_actions(args)
       self.class.actions.each do |action|
-        action.call(*[self, args].slice(0, action.arity))
+        self.instance_exec(*[self, args].slice(0, action.arity), &action)
       end
     end
 
