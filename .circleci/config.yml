@@ -1,14 +1,14 @@
 version: 2
 jobs:
   test:
-    working_directory: ~/rake-tasklib
+    working_directory: ~/rake_factory
     docker:
     - image: ruby:2.4.7
     steps:
     - checkout
     - run: ./scripts/ci/steps/test.sh
   prerelease:
-    working_directory: ~/rake-tasklib
+    working_directory: ~/rake_factory
     docker:
     - image: ruby:2.4.7
     steps:
@@ -19,7 +19,7 @@ jobs:
     - run: ./scripts/ci/common/configure-rubygems.sh
     - run: ./scripts/ci/steps/prerelease.sh
   release:
-    working_directory: ~/rake-tasklib
+    working_directory: ~/rake_factory
     docker:
     - image: ruby:2.4.7
     steps:
