@@ -60,7 +60,7 @@ module RakeFactory
     end
 
     def define_on(application)
-      task = application.define_task(
+      @task = application.define_task(
           Rake::Task,
           name,
           argument_names => prerequisites,
@@ -70,8 +70,17 @@ module RakeFactory
         check_parameter_requirements
         invoke_actions(args)
       end
-      task.add_description(description)
+      @task.add_description(description)
+
       self
+    end
+
+    def method_missing(method, *args, &block)
+      if @task.respond_to?(method)
+        @task.send(method, *args, &block)
+      else
+        super(method, *args, &block)
+      end
     end
 
     private

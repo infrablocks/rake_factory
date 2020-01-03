@@ -82,7 +82,7 @@ describe RakeFactory::Task do
 
     test_task = TestTaskA37c.define(
         spinach: lambda { "Some lazy spinach value." },
-        lettuce: lambda { |t| "Lettuce for #{t.name}."})
+        lettuce: lambda { |t| "Lettuce for #{t.name}." })
 
     expect(test_task.spinach).to(eq("Some lazy spinach value."))
     expect(test_task.lettuce).to(eq("Lettuce for some_task_name."))
@@ -116,9 +116,9 @@ describe RakeFactory::Task do
     end
 
     test_task = TestTaskA37c.define(argument_names: [:a]) do |c|
-        c.spinach = lambda { "Some lazy spinach value." }
-        c.lettuce = lambda { |t| "Lettuce for #{t.name}."}
-        c.cabbage = lambda { |t, args| "Cabbage for #{t.name}:#{args.a}."}
+      c.spinach = lambda { "Some lazy spinach value." }
+      c.lettuce = lambda { |t| "Lettuce for #{t.name}." }
+      c.cabbage = lambda { |t, args| "Cabbage for #{t.name}:#{args.a}." }
     end
 
     Rake::Task[test_task.name].invoke('thing')
@@ -598,5 +598,28 @@ describe RakeFactory::Task do
     expect(test_task).to(receive(:mkdir_p).with("example/path"))
 
     rake_task.invoke
+  end
+
+  it 'exposes the scope on the task argument to actions' do
+    scope = nil
+
+    task_klass = Class.new(RakeFactory::Task) do
+      action { |t| scope = t.scope }
+    end
+
+    namespace :test do
+      namespace :ns do
+        task_klass.define(name: :test_task)
+      end
+    end
+
+    rake_task = Rake::Task["test:ns:test_task"]
+    rake_task.invoke
+
+    expect(scope)
+        .to(eq(
+            Rake::Scope.new("ns",
+                Rake::Scope.new("test",
+                    Rake::Scope::EMPTY))))
   end
 end
