@@ -32,11 +32,17 @@ module RakeFactory
     def define_on(klass)
       parameter = self
       klass.class_eval do
-        attr_reader parameter.reader_method
         define_method parameter.writer_method do |value|
-          instance_variable_set(
-              parameter.instance_variable,
-              parameter.transform.call(value))
+          instance_variable_set(parameter.instance_variable, value)
+        end
+
+        define_method parameter.reader_method do
+          stored_value = instance_variable_get(parameter.instance_variable)
+          resolved_value = stored_value.respond_to?(:call) ?
+              stored_value.call(*[self].slice(0, stored_value.arity)) :
+              stored_value
+          transformed_value = parameter.transform.call(resolved_value)
+          transformed_value
         end
       end
     end

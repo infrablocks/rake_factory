@@ -72,6 +72,22 @@ describe RakeFactory::Task do
     expect(test_task.lettuce).to(eq('crisp'))
   end
 
+  it 'allows parameters to be passed to define as lambdas accepting the task' do
+    class TestTaskA37c < RakeFactory::Task
+      default_name :some_task_name
+
+      parameter :spinach
+      parameter :lettuce
+    end
+
+    test_task = TestTaskA37c.define(
+        spinach: lambda { "Some lazy spinach value." },
+        lettuce: lambda { |t| "Lettuce for #{t.name}."})
+
+    expect(test_task.spinach).to(eq("Some lazy spinach value."))
+    expect(test_task.lettuce).to(eq("Lettuce for some_task_name."))
+  end
+
   it 'allows the provided block to configure the task on execution' do
     class TestTaskE083 < RakeFactory::Task
       parameter :spinach
@@ -89,13 +105,36 @@ describe RakeFactory::Task do
     expect(test_task.lettuce).to eq('green')
   end
 
+  it 'allows parameters to be set as lambdas accepting the task and ' +
+      'arguments in the configuration block' do
+    class TestTaskA37c < RakeFactory::Task
+      default_name :some_task_name
+
+      parameter :spinach
+      parameter :lettuce
+      parameter :cabbage
+    end
+
+    test_task = TestTaskA37c.define(argument_names: [:a]) do |c|
+        c.spinach = lambda { "Some lazy spinach value." }
+        c.lettuce = lambda { |t| "Lettuce for #{t.name}."}
+        c.cabbage = lambda { |t, args| "Cabbage for #{t.name}:#{args.a}."}
+    end
+
+    Rake::Task[test_task.name].invoke('thing')
+
+    expect(test_task.spinach).to(eq("Some lazy spinach value."))
+    expect(test_task.lettuce).to(eq("Lettuce for some_task_name."))
+    expect(test_task.cabbage).to(eq("Cabbage for some_task_name:thing."))
+  end
+
   it 'passes provided arguments to configuration block when requested' do
-    class TestTaskE083 < RakeFactory::Task
+    class TestTaskFb44 < RakeFactory::Task
       parameter :spinach
       parameter :lettuce
     end
 
-    test_task = TestTaskE083
+    test_task = TestTaskFb44
         .define(argument_names: [:a, :b]) do |t, args|
       t.spinach = "healthy-#{args.a}"
       t.lettuce = "green-#{args.b}"

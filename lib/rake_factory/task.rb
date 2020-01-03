@@ -43,7 +43,7 @@ module RakeFactory
 
     def invoke_configuration_block(args)
       if configuration_block
-        view = ParameterView.new(self)
+        view = ParameterView.new(self, args)
         configuration_block.call(
             *[view, args].slice(0, configuration_block.arity))
       end
