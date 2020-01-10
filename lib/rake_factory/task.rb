@@ -10,11 +10,11 @@ require_relative 'arguments'
 module RakeFactory
   class Task < ::Rake::TaskLib
     extend Parameters
-    extend Actions
     extend Definable
 
     include Defaults
     include Arguments
+    include Actions
 
     attr_accessor(:configuration_block)
 
@@ -37,12 +37,6 @@ module RakeFactory
 
     def check_parameter_requirements
       self.class.parameter_set.enforce_requirements_on(self)
-    end
-
-    def invoke_actions(args)
-      self.class.actions.each do |action|
-        self.instance_exec(*[self, args].slice(0, action.arity), &action)
-      end
     end
 
     def define_on(application)
