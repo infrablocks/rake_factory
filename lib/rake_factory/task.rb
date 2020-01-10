@@ -4,37 +4,23 @@ require_relative 'parameters'
 require_relative 'parameter_view'
 require_relative 'actions'
 require_relative 'defaults'
+require_relative 'definable'
+require_relative 'arguments'
 
 module RakeFactory
   class Task < ::Rake::TaskLib
     extend Parameters
     extend Actions
-    extend Defaults
+    extend Definable
+
+    include Defaults
+    include Arguments
 
     attr_accessor(:configuration_block)
 
-    def self.inherited(inheritor)
-      super(inheritor)
-      inheritor.singleton_class.class_eval do
-        define_method :define do |*args, &block|
-          inheritor.new(*args, &block).define_on(Rake.application)
-        end
-      end
-    end
-
     def initialize(*args, &configuration_block)
-      setup_parameter_defaults
-      process_arguments(args)
+      super(*args, &configuration_block)
       process_configuration_block(configuration_block)
-    end
-
-    def setup_parameter_defaults
-      self.class.parameter_set.apply_defaults_to(self)
-    end
-
-    def process_arguments(args)
-      opts = args.first || {}
-      opts.each { |key, value| set_if_value_present(key, value) }
     end
 
     def process_configuration_block(configuration_block)

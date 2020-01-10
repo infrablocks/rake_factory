@@ -5,52 +5,68 @@ require_relative 'parameters'
 
 module RakeFactory
   module Defaults
-    include Parameters
+    def self.included(base)
+      base.extend(ClassMethods)
+    end
 
-    def inherited(inheritor)
-      super(inheritor)
-      inheritor.class_eval do
-        parameter(:name,
-            configurable: false,
-            transform: lambda { |n| n.to_sym })
-        parameter(:argument_names,
-            configurable: false,
-            default: [])
-        parameter(:prerequisites,
-            configurable: false,
-            default: [])
-        parameter(:order_only_prerequisites,
-            configurable: false,
-            default: [])
-        parameter(:description,
-            configurable: false)
+    def setup_parameter_defaults
+      self.class.parameter_set.apply_defaults_to(self)
+    end
 
-        unless inheritor.name.nil?
-          default_name inheritor.name.demodulize.underscore
+    def initialize(*args, &configuration_block)
+      arity = self.method(:initialize).super_method.arity
+      super(*args.slice(0, arity), &configuration_block)
+      setup_parameter_defaults
+    end
+
+    module ClassMethods
+      include Parameters
+
+      def inherited(inheritor)
+        super(inheritor)
+        inheritor.class_eval do
+          parameter(:name,
+              configurable: false,
+              transform: lambda { |n| n.to_sym })
+          parameter(:argument_names,
+              configurable: false,
+              default: [])
+          parameter(:prerequisites,
+              configurable: false,
+              default: [])
+          parameter(:order_only_prerequisites,
+              configurable: false,
+              default: [])
+          parameter(:description,
+              configurable: false)
+
+          unless inheritor.name.nil?
+            default_name inheritor.name.demodulize.underscore
+          end
         end
       end
-    end
 
-    def default_name(name)
-      parameter_set.update_default_for(:name, name)
-    end
+      def default_name(name)
+        parameter_set.update_default_for(:name, name)
+      end
 
-    def default_argument_names(argument_names)
-      parameter_set.update_default_for(:argument_names, argument_names)
-    end
+      def default_argument_names(argument_names)
+        parameter_set.update_default_for(:argument_names, argument_names)
+      end
 
-    def default_prerequisites(prerequisites)
-      parameter_set.update_default_for(:prerequisites, prerequisites)
-    end
+      def default_prerequisites(prerequisites)
+        parameter_set.update_default_for(:prerequisites, prerequisites)
+      end
 
-    def default_order_only_prerequisites(order_only_prerequisites)
-      parameter_set
-          .update_default_for(
-              :order_only_prerequisites, order_only_prerequisites)
-    end
+      def default_order_only_prerequisites(order_only_prerequisites)
+        parameter_set
+            .update_default_for(
+                :order_only_prerequisites, order_only_prerequisites)
+      end
 
-    def default_description(description)
-      parameter_set.update_default_for(:description, description)
+      def default_description(description)
+        parameter_set.update_default_for(:description, description)
+      end
     end
   end
 end
