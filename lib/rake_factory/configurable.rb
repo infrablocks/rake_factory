@@ -1,6 +1,10 @@
 module RakeFactory
   module Configurable
-    attr_accessor(:configuration_block)
+    def self.included(base)
+      base.class_eval do
+        attr_accessor(:configuration_block)
+      end
+    end
 
     def initialize(*args, &configuration_block)
       arity = self.method(:initialize).super_method.arity

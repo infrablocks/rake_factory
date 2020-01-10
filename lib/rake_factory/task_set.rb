@@ -6,9 +6,9 @@ require_relative 'defaults'
 
 module RakeFactory
   class TaskSet < ::Rake::TaskLib
-    extend Parameters
     extend Definable
 
+    include Parameters
     include Defaults
     include Arguments
 
