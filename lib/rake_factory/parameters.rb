@@ -6,6 +6,20 @@ module RakeFactory
       base.extend(ClassMethods)
     end
 
+    def initialize(*args, &configuration_block)
+      arity = self.method(:initialize).super_method.arity
+      super(*args.slice(0, arity), &configuration_block)
+      setup_parameter_defaults
+    end
+
+    def parameter_values
+      self.class.parameter_set.read_from(self)
+    end
+
+    def setup_parameter_defaults
+      self.class.parameter_set.apply_defaults_to(self)
+    end
+
     def check_parameter_requirements
       self.class.parameter_set.enforce_requirements_on(self)
     end

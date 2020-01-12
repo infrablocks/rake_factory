@@ -19,6 +19,8 @@ module RakeFactory
     include Actions
 
     def define_on(application)
+      creator = self
+
       @task = application.define_task(
           Rake::Task,
           name,
@@ -30,6 +32,9 @@ module RakeFactory
         invoke_actions(args)
       end
       @task.add_description(description)
+      @task.instance_eval do
+        define_singleton_method(:creator) { creator }
+      end
 
       self
     end

@@ -44,5 +44,11 @@ module RakeFactory
             "Required parameter#{pluralisation_string} #{names_string} unset."
       end
     end
+
+    def read_from(instance)
+      @parameter_set.reduce({}) do |acc, (key, parameter)|
+        acc.merge(Hash[key, parameter.read_from(instance)])
+      end
+    end
   end
 end

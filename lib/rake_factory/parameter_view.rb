@@ -12,8 +12,9 @@ module RakeFactory
           if parameter.configurable?
             define_singleton_method parameter.writer_method do |value|
               resolved_value = lambda do |t|
+                params = args ? [t, args] : [t]
                 value.respond_to?(:call) ?
-                    value.call(*[t, args].slice(0, value.arity)) :
+                    value.call(*params.slice(0, value.arity)) :
                     value
               end
               task.send(parameter.writer_method, resolved_value)

@@ -51,13 +51,16 @@ module RakeFactory
       instance.send(writer_method, @default) unless @default.nil?
     end
 
+    def read_from(instance)
+      instance.send(reader_method)
+    end
+
     def configurable?
       @configurable
     end
 
     def dissatisfied_by?(instance)
-      value = instance.send(reader_method)
-      @required && value.nil?
+      @required && read_from(instance).nil?
     end
 
     def satisfied_by?(instance)

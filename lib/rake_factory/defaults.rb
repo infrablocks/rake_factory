@@ -9,16 +9,6 @@ module RakeFactory
       base.extend(ClassMethods)
     end
 
-    def setup_parameter_defaults
-      self.class.parameter_set.apply_defaults_to(self)
-    end
-
-    def initialize(*args, &configuration_block)
-      arity = self.method(:initialize).super_method.arity
-      super(*args.slice(0, arity), &configuration_block)
-      setup_parameter_defaults
-    end
-
     module ClassMethods
       include Parameters
 
