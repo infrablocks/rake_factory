@@ -52,7 +52,7 @@ describe RakeFactory::TaskSet do
 
     test_task_set = TestTaskSetA777.define(
         spinach: lambda { "Some lazy spinach value." },
-        lettuce: lambda { |t| "Lettuce for #{t.thing}." })
+        lettuce: lambda { |ts| "Lettuce for #{ts.thing}." })
 
     expect(test_task_set.spinach).to(eq("Some lazy spinach value."))
     expect(test_task_set.lettuce).to(eq("Lettuce for some thing."))
@@ -64,17 +64,17 @@ describe RakeFactory::TaskSet do
       parameter :lettuce
     end
 
-    test_task = TestTaskSetDe23.define do |t|
-      t.spinach = 'healthy'
-      t.lettuce = 'green'
+    test_task = TestTaskSetDe23.define do |ts|
+      ts.spinach = 'healthy'
+      ts.lettuce = 'green'
     end
 
     expect(test_task.spinach).to eq('healthy')
     expect(test_task.lettuce).to eq('green')
   end
 
-  it 'allows parameters to be set as lambdas accepting the task and ' +
-      'arguments in the configuration block' do
+  it 'allows parameters to be set as lambdas accepting the task set ' +
+      'in the configuration block' do
     class TestTaskSet690c < RakeFactory::TaskSet
       parameter :cabbage, default: "whatever"
       parameter :spinach
@@ -83,7 +83,7 @@ describe RakeFactory::TaskSet do
 
     test_task = TestTaskSet690c.define do |c|
       c.spinach = lambda { "Some lazy spinach value." }
-      c.lettuce = lambda { |t| "Lettuce for #{t.cabbage}." }
+      c.lettuce = lambda { |ts| "Lettuce for #{ts.cabbage}." }
     end
 
     expect(test_task.spinach).to(eq("Some lazy spinach value."))
@@ -122,6 +122,28 @@ describe RakeFactory::TaskSet do
     expect(test_task.thing2).to(eq("woohoo"))
   end
 
+  it 'allows task arguments to be lambdas accepting the task set' do
+    class TestTask12bb < RakeFactory::Task
+      parameter :thing1
+      parameter :thing2
+    end
+
+    class TestTaskSetD053 < RakeFactory::TaskSet
+      parameter :other_thing
+
+      task TestTask12bb,
+          thing1: ->(ts) { "yay-#{ts.other_thing}" },
+          thing2: ->(ts) { "woohoo-#{ts.other_thing}" }
+    end
+
+    TestTaskSetD053.define(other_thing: 'yippee')
+    rake_task = Rake::Task["test_task12bb"]
+    test_task = rake_task.creator
+
+    expect(test_task.thing1).to(eq("yay-yippee"))
+    expect(test_task.thing2).to(eq("woohoo-yippee"))
+  end
+
   it 'passes parameters defined on the task set to the task at definition ' +
       'time' do
     class TestTaskDeec < RakeFactory::Task
@@ -148,18 +170,20 @@ describe RakeFactory::TaskSet do
     end
 
     class TestTaskSet2445 < RakeFactory::TaskSet
-      task TestTask522f do |t|
-        t.thing1 = 'yippee'
+      parameter :thing2
+
+      task TestTask522f do |ts, t|
+        t.thing1 = "#{ts.thing2}-yippee"
       end
     end
 
-    TestTaskSet2445.define
+    TestTaskSet2445.define(thing2: 'yay')
     rake_task = Rake::Task["test_task522f"]
     test_task = rake_task.creator
 
     rake_task.invoke
 
-    expect(test_task.thing1).to(eq('yippee'))
+    expect(test_task.thing1).to(eq('yay-yippee'))
   end
 
   it 'passes arguments to configuration block when task executes' do
@@ -169,33 +193,56 @@ describe RakeFactory::TaskSet do
     end
 
     class TestTaskSet000c < RakeFactory::TaskSet
-      task TestTask86d2 do |t, args|
-        t.thing = "thing-#{args.arg}"
+      parameter :other_thing
+
+      task TestTask86d2 do |ts, t, args|
+        t.thing = "#{ts.other_thing}-#{args.arg}"
       end
     end
 
-    TestTaskSet000c.define
+    TestTaskSet000c.define(other_thing: 'yay')
     rake_task = Rake::Task["test_task86d2"]
     test_task = rake_task.creator
 
     rake_task.invoke('wat')
 
-    expect(test_task.thing).to(eq('thing-wat'))
+    expect(test_task.thing).to(eq('yay-wat'))
   end
 
-  it 'allows task name to be configured based on parameter of task set' do
+  it 'allows task name to be configured based on task set' do
     class TestTask28d8 < RakeFactory::Task
     end
 
     class TestTaskSet6468 < RakeFactory::TaskSet
       parameter :test_task_name
 
-      task TestTask28d8, name_parameter: :test_task_name
+      task TestTask28d8, name: ->(ts) { ts.test_task_name }
     end
 
     TestTaskSet6468.define(test_task_name: 'some_task_name')
 
     expect(Rake::Task.task_defined?('some_task_name')).to(be(true))
     expect(Rake::Task.task_defined?('test_task28d8')).to(be(false))
+  end
+
+  it 'uses the provided lambda to determine whether or not to define the ' +
+      'task when supplied' do
+    class TestTaskC5e9 < RakeFactory::Task
+    end
+
+    class TestTaskD6af < RakeFactory::Task
+    end
+
+    class TestTaskSetDf8a < RakeFactory::TaskSet
+      parameter :vegetable
+
+      task TestTaskC5e9, define_if: ->(ts) { ts.vegetable == "turnip" }
+      task TestTaskD6af, define_if: ->(ts) { ts.vegetable == "carrot" }
+    end
+
+    TestTaskSetDf8a.define(vegetable: 'carrot')
+
+    expect(Rake::Task.task_defined?('test_task_c5e9')).to(be(false))
+    expect(Rake::Task.task_defined?('test_task_d6af')).to(be(true))
   end
 end

@@ -12,66 +12,125 @@ module RakeFactory
     include Configurable
     include Arguments
 
-    class TaskDefinition
-      attr_accessor :klass, :args, :overrides, :block
-
-      def initialize(klass, *args, &block)
-        self.klass = klass
-        self.args = args
-        self.block = block
-        self.overrides = {}
-      end
-
-      def with_overrides(overrides)
-        self.overrides = overrides
-        self
-      end
-
-      def define_on(application)
-        self.klass.new(*resolved_args, &self.block)
-            .define_on(application)
-      end
-
-      private
-
-      def resolved_args
-        initial_args = self.args.empty? && self.overrides ?
-            [self.overrides] : self.args
-
-        unless initial_args.first && initial_args.first.is_a?(Hash)
-          return initial_args
-        end
-
-        other_args = initial_args.drop(1)
-        merged_parameters = initial_args.first.merge(self.overrides)
-        merged_parameters = merged_parameters.include?(:name_parameter) ?
-            {name: self.overrides[merged_parameters[:name_parameter]]}
-                .merge(merged_parameters) :
-            merged_parameters
-
-        [merged_parameters, *other_args]
-      end
-    end
-
     class << self
       def tasks
         @tasks ||= []
       end
 
       def task(klass, *args, &block)
-        tasks << TaskDefinition.new(klass, *args, &block)
+        tasks << TaskDefinition.new(klass, args, &block)
       end
     end
 
     def define_on(application)
       invoke_configuration_block
-      parameter_values = self.parameter_values
       self.class.tasks.each do |task_definition|
         task_definition
-            .with_overrides(parameter_values)
+            .for_task_set(self)
             .define_on(application)
       end
       self
     end
+
+    private
+
+    class TaskArguments
+      attr_reader :arguments, :task_set
+
+      def initialize(arguments, task_set)
+        @arguments = arguments || []
+        @task_set = task_set
+      end
+
+      def parameter_overrides
+        task_set&.parameter_values || {}
+      end
+
+      def parameter_hash
+        arguments.first.is_a?(Hash) ?
+          arguments.first :
+          {}
+      end
+
+      def resolve
+        if arguments.empty?
+          resolved_parameter_hash = parameter_overrides
+          resolved_parameter_hash =
+              process_parameter_hash(resolved_parameter_hash)
+          return [resolved_parameter_hash]
+        end
+
+        if arguments.first.is_a?(Hash)
+          resolved_parameter_hash = arguments.first.merge(parameter_overrides)
+          resolved_parameter_hash =
+              process_parameter_hash(resolved_parameter_hash)
+          return [resolved_parameter_hash, *arguments.drop(1)]
+        end
+
+        arguments
+      end
+
+      private
+
+      def process_parameter_hash(parameter_hash)
+        parameter_hash.reduce({}) do |acc, (name, value)|
+          resolved_value = lambda do |t|
+            value.respond_to?(:call) ?
+                value.call(*[task_set, t].slice(0, value.arity)) :
+                value
+          end
+          acc.merge({name => resolved_value})
+        end
+      end
+    end
+
+    private_constant :TaskArguments
+
+    class TaskDefinition
+      attr_reader :task_set, :klass, :args, :block
+
+      def initialize(klass, args, task_set = nil, &block)
+        @task_set = task_set
+        @klass = klass
+        @args = args
+        @block = block
+      end
+
+      def for_task_set(task_set)
+        self.class.new(klass, args, task_set, &block)
+      end
+
+      def define_on(application)
+        if should_define?
+          klass.new(*resolve_arguments, &resolve_block).define_on(application)
+        end
+      end
+
+      private
+
+      def task_arguments
+        TaskArguments.new(args, task_set)
+      end
+
+      def should_define?
+        task_arguments.parameter_hash.include?(:define_if) ?
+            task_arguments.parameter_hash[:define_if].call(task_set) :
+            true
+      end
+
+      def resolve_arguments
+        task_arguments.resolve
+      end
+
+      def resolve_block
+        lambda do |t, args|
+          if block.respond_to?(:call)
+            block.call(*[task_set, t, args].slice(0, block.arity))
+          end
+        end
+      end
+    end
+
+    private_constant :TaskDefinition
   end
 end
