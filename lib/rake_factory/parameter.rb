@@ -5,6 +5,7 @@ module RakeFactory
         :default,
         :required,
         :configurable,
+        :lazy,
         :transform)
     attr_writer(:default)
 
@@ -12,9 +13,10 @@ module RakeFactory
       @name = name
       @default = options[:default] || nil
       @required = options[:required] || false
+      @transform = options[:transform] || lambda { |x| x }
+      @lazy = options[:lazy].nil? ? false : !!options[:lazy]
       @configurable =
           options[:configurable].nil? ? true : !!options[:configurable]
-      @transform = options[:transform] || lambda { |x| x }
     end
 
     def writer_method
@@ -37,12 +39,15 @@ module RakeFactory
         end
 
         define_method parameter.reader_method do
-          stored_value = instance_variable_get(parameter.instance_variable)
-          resolved_value = stored_value.respond_to?(:call) ?
-              stored_value.call(*[self].slice(0, stored_value.arity)) :
-              stored_value
-          transformed_value = parameter.transform.call(resolved_value)
-          transformed_value
+          value_resolver = lambda do |t|
+            stored_value = instance_variable_get(parameter.instance_variable)
+            resolved_value = stored_value.respond_to?(:call) ?
+                stored_value.call(*[t].slice(0, stored_value.arity)) :
+                stored_value
+            transformed_value = parameter.transform.call(resolved_value)
+            transformed_value
+          end
+          parameter.lazy ? value_resolver : value_resolver.call(self)
         end
       end
     end

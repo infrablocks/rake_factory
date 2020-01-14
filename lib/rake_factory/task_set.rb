@@ -48,23 +48,21 @@ module RakeFactory
 
       def parameter_hash
         arguments.first.is_a?(Hash) ?
-          arguments.first :
-          {}
+            arguments.first :
+            {}
       end
 
       def resolve
         if arguments.empty?
-          resolved_parameter_hash = parameter_overrides
-          resolved_parameter_hash =
-              process_parameter_hash(resolved_parameter_hash)
-          return [resolved_parameter_hash]
+          return [parameter_overrides]
         end
 
         if arguments.first.is_a?(Hash)
-          resolved_parameter_hash = arguments.first.merge(parameter_overrides)
-          resolved_parameter_hash =
-              process_parameter_hash(resolved_parameter_hash)
-          return [resolved_parameter_hash, *arguments.drop(1)]
+          return [
+              process_parameter_hash(arguments.first)
+                  .merge(parameter_overrides),
+              *arguments.drop(1)
+          ]
         end
 
         arguments

@@ -245,4 +245,24 @@ describe RakeFactory::TaskSet do
     expect(Rake::Task.task_defined?('test_task_c5e9')).to(be(false))
     expect(Rake::Task.task_defined?('test_task_d6af')).to(be(true))
   end
+
+  it 'does not eagerly evaluate lazy parameters' do
+    class TestTaskAcac < RakeFactory::Task
+      parameter :lazy_needs_me, default: "yippee"
+      parameter :so_lazy
+    end
+
+    class TestTaskSetAba7 < RakeFactory::TaskSet
+      parameter :so_lazy, lazy: true
+
+      task TestTaskAcac
+    end
+
+    TestTaskSetAba7.define(so_lazy: ->(t) { "yay-#{t.lazy_needs_me}" })
+
+    rake_task = Rake::Task["test_task_acac"]
+    test_task = rake_task.creator
+
+    expect(test_task.so_lazy).to(eq("yay-yippee"))
+  end
 end
