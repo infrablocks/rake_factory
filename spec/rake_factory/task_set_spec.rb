@@ -91,17 +91,34 @@ describe RakeFactory::TaskSet do
   end
 
   it 'defines task specified by classname' do
-    class TestTaskFb8c < RakeFactory::Task
+    class TestTaskE7f9 < RakeFactory::Task
+    end
 
+    class TestTaskSetC384 < RakeFactory::TaskSet
+      task TestTaskE7f9
+    end
+
+    TestTaskSetC384.define
+
+    expect(Rake::Task.task_defined?("test_task_e7f9")).to(be(true))
+  end
+
+  it 'defines task in specified namespace when provided' do
+    class TestTaskFb8c < RakeFactory::Task
     end
 
     class TestTaskSet09b7 < RakeFactory::TaskSet
+      prepend RakeFactory::Namespaceable
+
       task TestTaskFb8c
     end
 
-    TestTaskSet09b7.define
+    TestTaskSet09b7.define do |ts|
+      ts.namespace = :some_namespace
+    end
 
-    expect(Rake::Task.task_defined?("test_task_fb8c")).to(be(true))
+    expect(Rake::Task.task_defined?("some_namespace:test_task_fb8c"))
+        .to(be(true))
   end
 
   it 'passes arguments through to the task at definition time' do

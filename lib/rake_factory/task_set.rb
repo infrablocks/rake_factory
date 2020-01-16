@@ -24,12 +24,18 @@ module RakeFactory
 
     def define_on(application)
       invoke_configuration_block
-      self.class.tasks.each do |task_definition|
-        task_definition
-            .for_task_set(self)
-            .define_on(application)
+      around_define(application) do
+        self.class.tasks.each do |task_definition|
+          task_definition
+              .for_task_set(self)
+              .define_on(application)
+        end
       end
       self
+    end
+
+    def around_define(application)
+      yield
     end
 
     private
