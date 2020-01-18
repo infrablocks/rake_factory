@@ -192,12 +192,12 @@ describe RakeFactory::TaskSet do
       t.lettuce = "green-#{args.thing}"
     end
 
-    rake_task = Rake::Task["test_task_be4f"]
+    rake_task = Rake::Task["test_task_ffdd"]
     test_task = rake_task.creator
 
     rake_task.invoke("vegetables")
 
-    expect(test_task.lettuce).to eq('green')
+    expect(test_task.lettuce).to eq('green-vegetables')
   end
 
   it 'allows parameters to be set as lambdas accepting the task set ' +
@@ -219,12 +219,11 @@ describe RakeFactory::TaskSet do
       t.lettuce = lambda { |lazy_t| "Lettuce for #{lazy_t.cabbage}." }
     end
 
-    rake_task = Rake::Task["test_task_be4f"]
+    rake_task = Rake::Task["test_task_f730"]
     test_task = rake_task.creator
 
     rake_task.invoke
 
-    expect(test_task.spinach).to(eq("Some lazy spinach value."))
     expect(test_task.lettuce).to(eq("Lettuce for whatever."))
   end
 
