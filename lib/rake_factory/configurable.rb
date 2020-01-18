@@ -16,10 +16,9 @@ module RakeFactory
       set_if_value_present(:configuration_block, configuration_block)
     end
 
-    def invoke_configuration_block(args=nil)
+    def invoke_configuration_block_on(target, args)
       if configuration_block
-        view = ParameterView.new(self, args)
-        params = args ? [view, args] : [view]
+        params = args ? [target, args] : [target]
         configuration_block.call(
             *params.slice(0, configuration_block.arity))
       end

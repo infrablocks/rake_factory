@@ -27,7 +27,8 @@ module RakeFactory
           argument_names => prerequisites,
           order_only: order_only_prerequisites
       ) do |_, args|
-        invoke_configuration_block(args)
+        view = ParameterView.new(self, self.class, self.class, args)
+        invoke_configuration_block_on(view, args)
         check_parameter_requirements
         invoke_actions(args)
       end

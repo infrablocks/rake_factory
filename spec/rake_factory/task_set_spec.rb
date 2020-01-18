@@ -58,38 +58,6 @@ describe RakeFactory::TaskSet do
     expect(test_task_set.lettuce).to(eq("Lettuce for some thing."))
   end
 
-  it 'allows the provided block to configure the task on execution' do
-    class TestTaskSetDe23 < RakeFactory::TaskSet
-      parameter :spinach
-      parameter :lettuce
-    end
-
-    test_task = TestTaskSetDe23.define do |ts|
-      ts.spinach = 'healthy'
-      ts.lettuce = 'green'
-    end
-
-    expect(test_task.spinach).to eq('healthy')
-    expect(test_task.lettuce).to eq('green')
-  end
-
-  it 'allows parameters to be set as lambdas accepting the task set ' +
-      'in the configuration block' do
-    class TestTaskSet690c < RakeFactory::TaskSet
-      parameter :cabbage, default: "whatever"
-      parameter :spinach
-      parameter :lettuce
-    end
-
-    test_task = TestTaskSet690c.define do |c|
-      c.spinach = lambda { "Some lazy spinach value." }
-      c.lettuce = lambda { |ts| "Lettuce for #{ts.cabbage}." }
-    end
-
-    expect(test_task.spinach).to(eq("Some lazy spinach value."))
-    expect(test_task.lettuce).to(eq("Lettuce for whatever."))
-  end
-
   it 'defines task specified by classname' do
     class TestTaskE7f9 < RakeFactory::Task
     end
@@ -113,9 +81,7 @@ describe RakeFactory::TaskSet do
       task TestTaskFb8c
     end
 
-    TestTaskSet09b7.define do |ts|
-      ts.namespace = :some_namespace
-    end
+    TestTaskSet09b7.define(namespace: :some_namespace)
 
     expect(Rake::Task.task_defined?("some_namespace:test_task_fb8c"))
         .to(be(true))
@@ -181,7 +147,88 @@ describe RakeFactory::TaskSet do
     expect(test_task.thing1).to(eq("yay"))
   end
 
-  it 'passes provided configuration block to task on definition' do
+  it 'executes configuration block passed to task set on task at invocation' do
+    class TestTaskBe4f < RakeFactory::Task
+      parameter :lettuce
+    end
+
+    class TestTaskSetDe23 < RakeFactory::TaskSet
+      parameter :spinach
+      parameter :lettuce
+
+      task TestTaskBe4f
+    end
+
+    TestTaskSetDe23.define do |t|
+      t.spinach = 'healthy'
+      t.lettuce = 'green'
+    end
+
+    rake_task = Rake::Task["test_task_be4f"]
+    test_task = rake_task.creator
+
+    rake_task.invoke
+
+    expect(test_task.lettuce).to eq('green')
+  end
+
+  it 'passes arguments to configuration block passed to task set when ' +
+      'task executes' do
+    class TestTaskFfdd < RakeFactory::Task
+      parameter :lettuce
+    end
+
+    class TestTaskSet6856 < RakeFactory::TaskSet
+      parameter :argument_names, default: []
+
+      parameter :spinach
+      parameter :lettuce
+
+      task TestTaskFfdd
+    end
+
+    TestTaskSet6856.define(argument_names: [:thing]) do |t, args|
+      t.spinach = "healthy-#{args.thing}"
+      t.lettuce = "green-#{args.thing}"
+    end
+
+    rake_task = Rake::Task["test_task_be4f"]
+    test_task = rake_task.creator
+
+    rake_task.invoke("vegetables")
+
+    expect(test_task.lettuce).to eq('green')
+  end
+
+  it 'allows parameters to be set as lambdas accepting the task set ' +
+      'in the configuration block passed to the task set' do
+    class TestTaskF730 < RakeFactory::Task
+      parameter :cabbage, default: "whatever"
+      parameter :lettuce
+    end
+
+    class TestTaskSet690c < RakeFactory::TaskSet
+      parameter :spinach
+      parameter :lettuce
+
+      task TestTaskF730
+    end
+
+    TestTaskSet690c.define do |t|
+      t.spinach = lambda { "Some lazy spinach value." }
+      t.lettuce = lambda { |lazy_t| "Lettuce for #{lazy_t.cabbage}." }
+    end
+
+    rake_task = Rake::Task["test_task_be4f"]
+    test_task = rake_task.creator
+
+    rake_task.invoke
+
+    expect(test_task.spinach).to(eq("Some lazy spinach value."))
+    expect(test_task.lettuce).to(eq("Lettuce for whatever."))
+  end
+
+  it 'executes provided task configuration block on task at invocation' do
     class TestTask522f < RakeFactory::Task
       parameter :thing1
     end

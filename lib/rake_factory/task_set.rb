@@ -18,12 +18,11 @@ module RakeFactory
       end
 
       def task(klass, *args, &block)
-        tasks << TaskDefinition.new(klass, args, &block)
+        tasks << TaskSpecification.new(klass, args, &block)
       end
     end
 
     def define_on(application)
-      invoke_configuration_block
       around_define(application) do
         self.class.tasks.each do |task_definition|
           task_definition
@@ -88,20 +87,28 @@ module RakeFactory
       end
     end
 
-    private_constant :TaskArguments
+    class TaskSpecification
+      attr_reader :klass, :args, :block
 
-    class TaskDefinition
-      attr_reader :task_set, :klass, :args, :block
-
-      def initialize(klass, args, task_set = nil, &block)
-        @task_set = task_set
+      def initialize(klass, args, &block)
         @klass = klass
         @args = args
         @block = block
       end
 
       def for_task_set(task_set)
-        self.class.new(klass, args, task_set, &block)
+        TaskDefinition.new(klass, args, task_set, &block)
+      end
+    end
+
+    class TaskDefinition
+      attr_reader :task_set, :klass, :args, :block
+
+      def initialize(klass, args, task_set, &block)
+        @task_set = task_set
+        @klass = klass
+        @args = args
+        @block = block
       end
 
       def define_on(application)
@@ -131,10 +138,16 @@ module RakeFactory
           if block.respond_to?(:call)
             block.call(*[task_set, t, args].slice(0, block.arity))
           end
+          if task_set.configuration_block.respond_to?(:call)
+            view = ParameterView.new(t, t.class, task_set.class, args)
+            task_set.invoke_configuration_block_on(view, args)
+          end
         end
       end
     end
 
+    private_constant :TaskArguments
+    private_constant :TaskSpecification
     private_constant :TaskDefinition
   end
 end
