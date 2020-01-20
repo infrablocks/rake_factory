@@ -20,13 +20,13 @@ describe RakeFactory::Task do
   it 'defaults the parameters to the provided defaults when not specified' do
     class TestTask2fbb < RakeFactory::Task
       parameter :spinach, default: 'green'
-      parameter :lettuce, default: 'crisp'
+      parameter :lettuce, default: false
     end
 
     test_task = TestTask2fbb.define
 
     expect(test_task.spinach).to eq('green')
-    expect(test_task.lettuce).to eq('crisp')
+    expect(test_task.lettuce).to eq(false)
   end
 
   it 'throws RequiredParameterUnset exception on execution if required ' +

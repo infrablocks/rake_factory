@@ -11,7 +11,7 @@ module RakeFactory
 
     def initialize(name, options)
       @name = name
-      @default = options[:default] || nil
+      @default = options[:default]
       @required = options[:required] || false
       @transform = options[:transform] || lambda { |x| x }
       @lazy = options[:lazy].nil? ? false : !!options[:lazy]
