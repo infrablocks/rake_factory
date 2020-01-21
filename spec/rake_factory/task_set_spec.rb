@@ -127,6 +127,29 @@ describe RakeFactory::TaskSet do
     expect(test_task.thing2).to(eq("woohoo-yippee"))
   end
 
+  it 'prefers task spec params over task set params' do
+    class TestTaskFd10 < RakeFactory::Task
+      parameter :thing1
+      parameter :thing2
+    end
+
+    class TestTaskSetCa50 < RakeFactory::TaskSet
+      parameter :thing1, default: 'goodo'
+      parameter :thing2, default: 'yip'
+
+      task TestTaskFd10,
+          thing1: ->(ts) { "yay-#{ts.thing1}" },
+          thing2: ->(ts) { "woohoo-#{ts.thing2}" }
+    end
+
+    TestTaskSetCa50.define
+    rake_task = Rake::Task["test_task_fd10"]
+    test_task = rake_task.creator
+
+    expect(test_task.thing1).to(eq("yay-goodo"))
+    expect(test_task.thing2).to(eq("woohoo-yip"))
+  end
+
   it 'passes parameters defined on the task set to the task at definition ' +
       'time' do
     class TestTaskDeec < RakeFactory::Task

@@ -64,8 +64,8 @@ module RakeFactory
 
         if arguments.first.is_a?(Hash)
           return [
-              process_parameter_hash(arguments.first)
-                  .merge(parameter_overrides),
+              parameter_overrides
+                  .merge(process_parameter_hash(arguments.first)),
               *arguments.drop(1)
           ]
         end
