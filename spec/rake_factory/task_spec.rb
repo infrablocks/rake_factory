@@ -72,6 +72,16 @@ describe RakeFactory::Task do
     expect(test_task.lettuce).to(eq('crisp'))
   end
 
+  it 'overwrites default values when nil parameter passed to define' do
+    class TestTaskBef9 < RakeFactory::Task
+      parameter :spinach, default: :kale
+    end
+
+    test_task = TestTaskBef9.define(spinach: nil)
+
+    expect(test_task.spinach).to(eq(nil))
+  end
+
   it 'allows parameters to be passed to define as lambdas accepting the task' do
     class TestTaskA37c < RakeFactory::Task
       default_name :some_task_name

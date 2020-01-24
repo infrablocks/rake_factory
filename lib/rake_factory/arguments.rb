@@ -8,13 +8,13 @@ module RakeFactory
 
     def process_arguments(args)
       opts = args.first || {}
-      opts.each { |key, value| set_if_value_present(key, value) }
+      opts.each { |key, value| set_if_parameter(key, value) }
     end
 
     private
 
-    def set_if_value_present(key, value)
-      if self.respond_to?("#{key}=") && !value.nil?
+    def set_if_parameter(key, value)
+      if self.respond_to?("#{key}=")
         self.send("#{key}=", value)
       end
     end
