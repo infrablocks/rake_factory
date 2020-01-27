@@ -1,3 +1,3 @@
 module RakeFactory
-  VERSION = '0.18.0.pre.2'
+  VERSION = '0.19.0'
 end
