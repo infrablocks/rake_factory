@@ -7,6 +7,7 @@ require 'rake'
 require 'support/shared_contexts/rake'
 
 require 'rake_factory'
+require 'rake_factory/kernel_extensions'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

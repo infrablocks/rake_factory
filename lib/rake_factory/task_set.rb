@@ -1,5 +1,6 @@
 require 'rake/tasklib'
 
+require_relative 'values'
 require_relative 'parameters'
 require_relative 'definable'
 require_relative 'defaults'
@@ -77,12 +78,7 @@ module RakeFactory
 
       def process_parameter_hash(parameter_hash)
         parameter_hash.reduce({}) do |acc, (name, value)|
-          resolved_value = lambda do |t|
-            value.respond_to?(:call) ?
-                value.call(*[task_set, t].slice(0, value.arity)) :
-                value
-          end
-          acc.merge({name => resolved_value})
+          acc.merge(name => Values.resolve(value).prepend_argument(task_set))
         end
       end
     end

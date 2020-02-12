@@ -1,3 +1,5 @@
+require_relative 'values'
+
 module RakeFactory
   class Parameter
     attr_reader(
@@ -5,7 +7,6 @@ module RakeFactory
         :default,
         :required,
         :configurable,
-        :lazy,
         :transform)
     attr_writer(:default)
 
@@ -14,7 +15,6 @@ module RakeFactory
       @default = options[:default]
       @required = options[:required] || false
       @transform = options[:transform] || lambda { |x| x }
-      @lazy = options[:lazy].nil? ? false : !!options[:lazy]
       @configurable =
           options[:configurable].nil? ? true : !!options[:configurable]
     end
@@ -39,15 +39,10 @@ module RakeFactory
         end
 
         define_method parameter.reader_method do
-          value_resolver = lambda do |t|
-            stored_value = instance_variable_get(parameter.instance_variable)
-            resolved_value = stored_value.respond_to?(:call) ?
-                stored_value.call(*[t].slice(0, stored_value.arity)) :
-                stored_value
-            transformed_value = parameter.transform.call(resolved_value)
-            transformed_value
-          end
-          parameter.lazy ? value_resolver : value_resolver.call(self)
+          stored_value = instance_variable_get(parameter.instance_variable)
+          resolved_value = Values.resolve(stored_value).evaluate([self])
+          transformed_value = parameter.transform.call(resolved_value)
+          transformed_value
         end
       end
     end

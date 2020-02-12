@@ -52,7 +52,8 @@ describe RakeFactory::TaskSet do
     expect(test_task_set.spinach).to(eq(nil))
   end
 
-  it 'allows parameters to be passed to define as lambdas accepting the task' do
+  it 'allows parameter values passed to define to be dynamic, optionally ' +
+      'accepting the task set' do
     class TestTaskSetA777 < RakeFactory::TaskSet
       parameter :thing, default: "some thing"
 
@@ -61,8 +62,8 @@ describe RakeFactory::TaskSet do
     end
 
     test_task_set = TestTaskSetA777.define(
-        spinach: lambda { "Some lazy spinach value." },
-        lettuce: lambda { |ts| "Lettuce for #{ts.thing}." })
+        spinach: dynamic { "Some lazy spinach value." },
+        lettuce: dynamic { |ts| "Lettuce for #{ts.thing}." })
 
     expect(test_task_set.spinach).to(eq("Some lazy spinach value."))
     expect(test_task_set.lettuce).to(eq("Lettuce for some thing."))
@@ -115,7 +116,8 @@ describe RakeFactory::TaskSet do
     expect(test_task.thing2).to(eq("woohoo"))
   end
 
-  it 'allows task arguments to be lambdas accepting the task set' do
+  it 'allows parameter values passed to task spec to be dynamic, optionally ' +
+      'accepting the task set' do
     class TestTask12bb < RakeFactory::Task
       parameter :thing1
       parameter :thing2
@@ -125,8 +127,8 @@ describe RakeFactory::TaskSet do
       parameter :other_thing
 
       task TestTask12bb,
-          thing1: ->(ts) { "yay-#{ts.other_thing}" },
-          thing2: ->(ts) { "woohoo-#{ts.other_thing}" }
+          thing1: dynamic { |ts| "yay-#{ts.other_thing}" },
+          thing2: dynamic { |ts| "woohoo-#{ts.other_thing}" }
     end
 
     TestTaskSetD053.define(other_thing: 'yippee')
@@ -137,7 +139,7 @@ describe RakeFactory::TaskSet do
     expect(test_task.thing2).to(eq("woohoo-yippee"))
   end
 
-  it 'prefers task spec params over task set params' do
+  it 'prefers task spec parameter values over task set parameter values' do
     class TestTaskFd10 < RakeFactory::Task
       parameter :thing1
       parameter :thing2
@@ -148,8 +150,12 @@ describe RakeFactory::TaskSet do
       parameter :thing2, default: 'yip'
 
       task TestTaskFd10,
-          thing1: ->(ts) { "yay-#{ts.thing1}" },
-          thing2: ->(ts) { "woohoo-#{ts.thing2}" }
+          thing1: dynamic { |ts|
+            "yay-#{ts.thing1}"
+          },
+          thing2: dynamic { |ts|
+            "woohoo-#{ts.thing2}"
+          }
     end
 
     TestTaskSetCa50.define
@@ -180,7 +186,8 @@ describe RakeFactory::TaskSet do
     expect(test_task.thing1).to(eq("yay"))
   end
 
-  it 'executes configuration block passed to task set on task at invocation' do
+  it 'calls configuration block passed to task set on task at invocation ' +
+      'time' do
     class TestTaskBe4f < RakeFactory::Task
       parameter :lettuce
     end
@@ -205,8 +212,8 @@ describe RakeFactory::TaskSet do
     expect(test_task.lettuce).to eq('green')
   end
 
-  it 'passes arguments to configuration block passed to task set when ' +
-      'task executes' do
+  it 'passes arguments to configuration block passed to task set at ' +
+      'task invocation time' do
     class TestTaskFfdd < RakeFactory::Task
       parameter :lettuce
     end
@@ -233,8 +240,8 @@ describe RakeFactory::TaskSet do
     expect(test_task.lettuce).to eq('green-vegetables')
   end
 
-  it 'allows parameters to be set as lambdas accepting the task set ' +
-      'in the configuration block passed to the task set' do
+  it 'allows parameter values passed in the configuration block to be ' +
+      'dynamic, optionally accepting the task' do
     class TestTaskF730 < RakeFactory::Task
       parameter :cabbage, default: "whatever"
       parameter :lettuce
@@ -248,8 +255,8 @@ describe RakeFactory::TaskSet do
     end
 
     TestTaskSet690c.define do |t|
-      t.spinach = lambda { "Some lazy spinach value." }
-      t.lettuce = lambda { |lazy_t| "Lettuce for #{lazy_t.cabbage}." }
+      t.spinach = dynamic { "Some lazy spinach value." }
+      t.lettuce = dynamic { |lazy_t| "Lettuce for #{lazy_t.cabbage}." }
     end
 
     rake_task = Rake::Task["test_task_f730"]
@@ -260,7 +267,8 @@ describe RakeFactory::TaskSet do
     expect(test_task.lettuce).to(eq("Lettuce for whatever."))
   end
 
-  it 'executes provided task configuration block on task at invocation' do
+  it 'calls configuration block provided to task spec with task set and ' +
+      'task at invocation time' do
     class TestTask522f < RakeFactory::Task
       parameter :thing1
     end
@@ -282,7 +290,7 @@ describe RakeFactory::TaskSet do
     expect(test_task.thing1).to(eq('yay-yippee'))
   end
 
-  it 'passes arguments to configuration block when task executes' do
+  it 'passes arguments to task spec configuration block when task is invoked' do
     class TestTask86d2 < RakeFactory::Task
       parameter :argument_names, default: [:arg]
       parameter :thing
@@ -312,7 +320,7 @@ describe RakeFactory::TaskSet do
     class TestTaskSet6468 < RakeFactory::TaskSet
       parameter :test_task_name
 
-      task TestTask28d8, name: ->(ts) { ts.test_task_name }
+      task TestTask28d8, name: dynamic { |ts| ts.test_task_name }
     end
 
     TestTaskSet6468.define(test_task_name: 'some_task_name')
@@ -340,25 +348,5 @@ describe RakeFactory::TaskSet do
 
     expect(Rake::Task.task_defined?('test_task_c5e9')).to(be(false))
     expect(Rake::Task.task_defined?('test_task_d6af')).to(be(true))
-  end
-
-  it 'does not eagerly evaluate lazy parameters' do
-    class TestTaskAcac < RakeFactory::Task
-      parameter :lazy_needs_me, default: "yippee"
-      parameter :so_lazy
-    end
-
-    class TestTaskSetAba7 < RakeFactory::TaskSet
-      parameter :so_lazy, lazy: true
-
-      task TestTaskAcac
-    end
-
-    TestTaskSetAba7.define(so_lazy: ->(t) { "yay-#{t.lazy_needs_me}" })
-
-    rake_task = Rake::Task["test_task_acac"]
-    test_task = rake_task.creator
-
-    expect(test_task.so_lazy).to(eq("yay-yippee"))
   end
 end

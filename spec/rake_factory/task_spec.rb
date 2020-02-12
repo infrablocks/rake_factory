@@ -82,7 +82,19 @@ describe RakeFactory::Task do
     expect(test_task.spinach).to(eq(nil))
   end
 
-  it 'allows parameters to be passed to define as lambdas accepting the task' do
+  it 'retains parameter values passed to define as lambdas' do
+    class TestTaskF319 < RakeFactory::Task
+      parameter :call_me_maybe
+    end
+
+    test_task = TestTaskF319.define(
+        call_me_maybe: lambda { |thing1, thing2| thing1 * thing2 })
+
+    expect(test_task.call_me_maybe.call(3, 5)).to(eq(15))
+  end
+
+  it 'allows parameter values passed to define to be dynamic, optionally ' +
+      'receiving the task' do
     class TestTaskA37c < RakeFactory::Task
       default_name :some_task_name
 
@@ -91,14 +103,14 @@ describe RakeFactory::Task do
     end
 
     test_task = TestTaskA37c.define(
-        spinach: lambda { "Some lazy spinach value." },
-        lettuce: lambda { |t| "Lettuce for #{t.name}." })
+        spinach: dynamic { "Some lazy spinach value." },
+        lettuce: dynamic { |t| "Lettuce for #{t.name}." })
 
     expect(test_task.spinach).to(eq("Some lazy spinach value."))
     expect(test_task.lettuce).to(eq("Lettuce for some_task_name."))
   end
 
-  it 'allows the provided block to configure the task on execution' do
+  it 'allows the provided block to configure the task on invocation' do
     class TestTaskE083 < RakeFactory::Task
       parameter :spinach
       parameter :lettuce
@@ -115,8 +127,22 @@ describe RakeFactory::Task do
     expect(test_task.lettuce).to eq('green')
   end
 
-  it 'allows parameters to be set as lambdas accepting the task and ' +
-      'arguments in the configuration block' do
+  it 'retains parameter values passed in configuration block as lambdas' do
+    class TestTaskD502 < RakeFactory::Task
+      parameter :call_me_maybe
+    end
+
+    test_task = TestTaskD502.define do |t|
+      t.call_me_maybe = lambda { |thing1, thing2| thing1 * thing2 }
+    end
+
+    test_task.invoke
+
+    expect(test_task.call_me_maybe.call(3, 5)).to(eq(15))
+  end
+
+  it 'allows parameter values passed in configuration block to be dynamic, ' +
+      'optionally receiving the task and runtime arguments' do
     class TestTaskA37c < RakeFactory::Task
       default_name :some_task_name
 
@@ -125,10 +151,12 @@ describe RakeFactory::Task do
       parameter :cabbage
     end
 
-    test_task = TestTaskA37c.define(argument_names: [:a]) do |c|
-      c.spinach = lambda { "Some lazy spinach value." }
-      c.lettuce = lambda { |t| "Lettuce for #{t.name}." }
-      c.cabbage = lambda { |t, args| "Cabbage for #{t.name}:#{args.a}." }
+    test_task = TestTaskA37c.define(argument_names: [:a]) do |t|
+      t.spinach = dynamic { "Some lazy spinach value." }
+      t.lettuce = dynamic { |t| "Lettuce for #{t.name}." }
+      t.cabbage = dynamic { |t, args|
+        "Cabbage for #{t.name}:#{args.a}."
+      }
     end
 
     Rake::Task[test_task.name].invoke('thing')

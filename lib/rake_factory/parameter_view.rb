@@ -1,8 +1,10 @@
+require_relative 'values'
+
 module RakeFactory
   class ParameterView
     attr_reader(:task)
 
-    def initialize(target, reader_class, writer_class, args)
+    def initialize(target, reader_class, writer_class, runtime_arguments)
       self.instance_eval do
         reader_class.parameter_set.each do |parameter|
           define_singleton_method parameter.reader_method do
@@ -13,13 +15,9 @@ module RakeFactory
           if parameter.configurable?
             define_singleton_method parameter.writer_method do |value|
               if target.respond_to?(parameter.writer_method)
-                resolved_value = lambda do |t|
-                  params = args ? [t, args] : [t]
-                  value.respond_to?(:call) ?
-                      value.call(*params.slice(0, value.arity)) :
-                      value
-                end
-                target.send(parameter.writer_method, resolved_value)
+                target.send(
+                    parameter.writer_method,
+                    Values.resolve(value).append_argument(runtime_arguments))
               end
             end
           end
