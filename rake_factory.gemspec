@@ -6,8 +6,8 @@ require 'rake_factory/version'
 Gem::Specification.new do |spec|
   spec.name = 'rake_factory'
   spec.version = RakeFactory::VERSION
-  spec.authors = ['Toby Clemson']
-  spec.email = ['tobyclemson@gmail.com']
+  spec.authors = ['InfraBlocks Maintainers']
+  spec.email = ['maintainers@infrablocks.io']
 
   spec.summary =
       'Base classes and modules to aid in creating custom rake tasks.'
