@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rake_factory (0.30.0.pre.4)
+    rake_factory (0.30.0.pre.5)
       activesupport (>= 4)
       rake (~> 13.0)
 
