@@ -1,22 +1,19 @@
+# frozen_string_literal: true
+
 require_relative 'values'
 
 module RakeFactory
   class Parameter
-    attr_reader(
-        :name,
-        :default,
-        :required,
-        :configurable,
-        :transform)
-    attr_writer(:default)
+    attr_accessor :default
+    attr_reader :name, :required, :configurable, :transform
 
     def initialize(name, options)
       @name = name
       @default = options[:default]
       @required = options[:required] || false
-      @transform = options[:transform] || lambda { |x| x }
+      @transform = options[:transform] || ->(x) { x }
       @configurable =
-          options[:configurable].nil? ? true : !!options[:configurable]
+        options[:configurable].nil? ? true : !!options[:configurable]
     end
 
     def writer_method
@@ -35,14 +32,11 @@ module RakeFactory
       parameter = self
       klass.class_eval do
         define_method parameter.writer_method do |value|
-          instance_variable_set(parameter.instance_variable, value)
+          parameter.set(self, value)
         end
 
         define_method parameter.reader_method do
-          stored_value = instance_variable_get(parameter.instance_variable)
-          resolved_value = Values.resolve(stored_value).evaluate([self])
-          transformed_value = parameter.transform.call(resolved_value)
-          transformed_value
+          parameter.get(self)
         end
       end
     end
@@ -65,6 +59,16 @@ module RakeFactory
 
     def satisfied_by?(instance)
       !dissatisfied_by?(instance)
+    end
+
+    def set(target, value)
+      target.instance_variable_set(instance_variable, value)
+    end
+
+    def get(target)
+      stored_value = target.instance_variable_get(instance_variable)
+      resolved_value = Values.resolve(stored_value).evaluate([target])
+      transform.call(resolved_value)
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RakeFactory
   module Configurable
     def self.included(base)
@@ -7,7 +9,7 @@ module RakeFactory
     end
 
     def initialize(*args, &configuration_block)
-      arity = self.method(:initialize).super_method.arity
+      arity = method(:initialize).super_method.arity
       super(*args.slice(0, arity), &configuration_block)
       process_configuration_block(configuration_block)
     end
@@ -17,19 +19,18 @@ module RakeFactory
     end
 
     def invoke_configuration_block_on(target, args)
-      if configuration_block
-        params = args ? [target, args] : [target]
-        configuration_block.call(
-            *params.slice(0, configuration_block.arity))
-      end
+      return unless configuration_block
+
+      params = args ? [target, args] : [target]
+      configuration_block.call(
+        *params.slice(0, configuration_block.arity)
+      )
     end
 
     private
 
     def set_if_value_present(key, value)
-      if self.respond_to?("#{key}=") && !value.nil?
-        self.send("#{key}=", value)
-      end
+      send("#{key}=", value) if respond_to?("#{key}=") && !value.nil?
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake/tasklib'
 
 require_relative 'values'
@@ -27,18 +29,16 @@ module RakeFactory
       around_define(application) do
         self.class.tasks.each do |task_definition|
           task_definition
-              .for_task_set(self)
-              .define_on(application)
+            .for_task_set(self)
+            .define_on(application)
         end
       end
       self
     end
 
-    def around_define(application)
+    def around_define(_application)
       yield
     end
-
-    private
 
     class TaskArguments
       attr_reader :arguments, :task_set
@@ -53,21 +53,21 @@ module RakeFactory
       end
 
       def parameter_hash
-        arguments.first.is_a?(Hash) ?
-            arguments.first :
-            {}
+        if arguments.first.is_a?(Hash)
+          arguments.first
+        else
+          {}
+        end
       end
 
       def resolve
-        if arguments.empty?
-          return [parameter_overrides]
-        end
+        return [parameter_overrides] if arguments.empty?
 
         if arguments.first.is_a?(Hash)
           return [
-              parameter_overrides
-                  .merge(process_parameter_hash(arguments.first)),
-              *arguments.drop(1)
+            parameter_overrides
+                 .merge(process_parameter_hash(arguments.first)),
+            *arguments.drop(1)
           ]
         end
 
@@ -108,9 +108,10 @@ module RakeFactory
       end
 
       def define_on(application)
-        if should_define?
-          klass.new(*resolve_arguments, &resolve_block).define_on(application)
-        end
+        return unless should_define?
+
+        klass.new(*resolve_arguments, &resolve_block)
+             .define_on(application)
       end
 
       private
@@ -120,9 +121,11 @@ module RakeFactory
       end
 
       def should_define?
-        task_arguments.parameter_hash.include?(:define_if) ?
-            task_arguments.parameter_hash[:define_if].call(task_set) :
-            true
+        if task_arguments.parameter_hash.include?(:define_if)
+          task_arguments.parameter_hash[:define_if].call(task_set)
+        else
+          true
+        end
       end
 
       def resolve_arguments
@@ -130,15 +133,23 @@ module RakeFactory
       end
 
       def resolve_block
-        lambda do |t, args|
-          if block.respond_to?(:call)
-            block.call(*[task_set, t, args].slice(0, block.arity))
-          end
-          if task_set.configuration_block.respond_to?(:call)
-            view = ParameterView.new(t, t.class, task_set.class, args)
-            task_set.invoke_configuration_block_on(view, args)
-          end
+        lambda do |task, args|
+          maybe_call_block(task, args)
+          maybe_call_configuration_block(task, args)
         end
+      end
+
+      def maybe_call_configuration_block(task, args)
+        return unless task_set.configuration_block.respond_to?(:call)
+
+        view = ParameterView.new(task, task.class, task_set.class, args)
+        task_set.invoke_configuration_block_on(view, args)
+      end
+
+      def maybe_call_block(task, args)
+        return unless block.respond_to?(:call)
+
+        block.call(*[task_set, task, args].slice(0, block.arity))
       end
     end
 

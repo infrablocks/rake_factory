@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RakeFactory
   module Actions
     def self.included(base)
@@ -6,7 +8,7 @@ module RakeFactory
 
     def invoke_actions(args)
       self.class.actions.each do |action|
-        self.instance_exec(*[self, args].slice(0, action.arity), &action)
+        instance_exec(*[self, args].slice(0, action.arity), &action)
       end
     end
 

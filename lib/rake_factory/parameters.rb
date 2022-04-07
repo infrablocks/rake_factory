@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'parameter_set'
 
 module RakeFactory
@@ -7,7 +9,7 @@ module RakeFactory
     end
 
     def initialize(*args, &configuration_block)
-      arity = self.method(:initialize).super_method.arity
+      arity = method(:initialize).super_method.arity
       super(*args.slice(0, arity), &configuration_block)
       setup_parameter_defaults
     end

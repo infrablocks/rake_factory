@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module RakeFactory
   module Values
     def self.resolve(value)
@@ -28,11 +30,15 @@ module RakeFactory
     end
 
     def prepend_argument(argument)
-      self.class.new([argument, *@pre_arguments], @post_arguments, &@block)
+      self.class.new(
+        [argument, *@pre_arguments], @post_arguments, &@block
+      )
     end
 
     def append_argument(argument)
-      self.class.new(@pre_arguments, [*@post_arguments, argument], &@block)
+      self.class.new(
+        @pre_arguments, [*@post_arguments, argument], &@block
+      )
     end
 
     def evaluate(arguments)

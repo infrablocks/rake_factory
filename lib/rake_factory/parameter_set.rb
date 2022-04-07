@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'parameter'
 require_relative 'exceptions'
 
@@ -26,7 +28,7 @@ module RakeFactory
     end
 
     def apply_defaults_to(instance)
-      @parameter_set.values.each do |parameter|
+      @parameter_set.each_value do |parameter|
         parameter.apply_default_to(instance)
       end
     end
@@ -35,19 +37,19 @@ module RakeFactory
       dissatisfied = @parameter_set.values.reject do |parameter|
         parameter.satisfied_by?(instance)
       end
-      unless dissatisfied.empty?
-        names = dissatisfied.map(&:name)
-        names_string = names.join(',')
-        pluralisation_string = names.length > 1 ? 's' : ''
+      return if dissatisfied.empty?
 
-        raise RequiredParameterUnset,
+      names = dissatisfied.map(&:name)
+      names_string = names.join(',')
+      pluralisation_string = names.length > 1 ? 's' : ''
+
+      raise RequiredParameterUnset,
             "Required parameter#{pluralisation_string} #{names_string} unset."
-      end
     end
 
     def read_from(instance)
       @parameter_set.reduce({}) do |acc, (key, parameter)|
-        acc.merge(Hash[key, parameter.read_from(instance)])
+        acc.merge({ key => parameter.read_from(instance) })
       end
     end
   end

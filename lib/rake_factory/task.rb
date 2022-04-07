@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rake/tasklib'
 
 require_relative 'parameters'
@@ -21,21 +23,9 @@ module RakeFactory
     def define_on(application)
       creator = self
 
-      @task = application.define_task(
-          Rake::Task,
-          name,
-          argument_names => prerequisites,
-          order_only: order_only_prerequisites
-      ) do |_, args|
-        view = ParameterView.new(self, self.class, self.class, args)
-        invoke_configuration_block_on(view, args)
-        check_parameter_requirements
-        invoke_actions(args)
-      end
-      @task.add_description(description)
-      @task.instance_eval do
-        define_singleton_method(:creator) { creator }
-      end
+      define_task(application)
+      add_description
+      add_creator(creator)
 
       self
     end
@@ -45,6 +35,39 @@ module RakeFactory
         @task.send(method, *args, &block)
       else
         super(method, *args, &block)
+      end
+    end
+
+    def respond_to_missing?(method, include_private = false)
+      @task.respond_to?(method) || super
+    end
+
+    private
+
+    def parameter_view(args)
+      ParameterView.new(self, self.class, self.class, args)
+    end
+
+    def define_task(application)
+      @task = application.define_task(
+        Rake::Task,
+        name,
+        argument_names => prerequisites,
+        order_only: order_only_prerequisites
+      ) do |_, args|
+        invoke_configuration_block_on(parameter_view(args), args)
+        check_parameter_requirements
+        invoke_actions(args)
+      end
+    end
+
+    def add_description
+      @task.add_description(description)
+    end
+
+    def add_creator(creator)
+      @task.instance_eval do
+        define_singleton_method(:creator) { creator }
       end
     end
   end
