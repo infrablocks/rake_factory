@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rake_factory (0.30.0.pre.6)
+    rake_factory (0.30.0.pre.7)
       activesupport (>= 4)
       rake (~> 13.0)
 
@@ -150,4 +150,4 @@ DEPENDENCIES
   simplecov
 
 BUNDLED WITH
-   2.3.22
+   2.3.24
