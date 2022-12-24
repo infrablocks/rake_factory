@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module RakeFactory
-  VERSION = '0.30.0.pre.8'
+  VERSION = '0.31.0'
 end
