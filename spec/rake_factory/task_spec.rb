@@ -378,7 +378,7 @@ describe RakeFactory::Task do
       name: :some_task_name,
       argument_names: %i[third fourth]
     ) do |t|
-      t.some_parameter = t.argument_names.concat(%i[fifth sixth])
+      t.some_parameter = t.argument_names.push(:fifth, :sixth)
     end
     rake_task = Rake::Task[test_task.name]
     rake_task.invoke
@@ -470,7 +470,7 @@ describe RakeFactory::Task do
       name: :some_task_name,
       prerequisites: %w[some:third some:fourth]
     ) do |t|
-      t.some_parameter = t.prerequisites.concat(%w[some:fifth some:sixth])
+      t.some_parameter = t.prerequisites.push('some:fifth', 'some:sixth')
     end
     rake_task = Rake::Task[test_task.name]
     rake_task.invoke
@@ -566,7 +566,7 @@ describe RakeFactory::Task do
       order_only_prerequisites: %w[some:third some:fourth]
     ) do |t|
       t.some_parameter =
-        t.order_only_prerequisites.concat(%w[some:fifth some:sixth])
+        t.order_only_prerequisites.push('some:fifth', 'some:sixth')
     end
     rake_task = Rake::Task[test_task.name]
     rake_task.invoke
@@ -609,7 +609,7 @@ describe RakeFactory::Task do
       .to(eq('Some task that does a specific thing.'))
   end
 
-  it 'overrides specified default description when name passed in the '\
+  it 'overrides specified default description when name passed in the ' \
      'options argument' do
     test_task_klass = Class.new(described_class) do
       default_description 'Some task that does some thing.'
