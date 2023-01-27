@@ -3,4 +3,7 @@
 module RakeFactory
   class RequiredParameterUnset < ::StandardError
   end
+
+  class DependencyTaskMissing < ::StandardError
+  end
 end

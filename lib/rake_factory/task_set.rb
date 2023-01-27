@@ -27,8 +27,8 @@ module RakeFactory
 
     def define_on(application)
       around_define(application) do
-        self.class.tasks.each do |task_definition|
-          task_definition
+        self.class.tasks.each do |task_specification|
+          task_specification
             .for_task_set(self)
             .define_on(application)
         end
