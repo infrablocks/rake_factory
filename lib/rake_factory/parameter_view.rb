@@ -42,12 +42,12 @@ module RakeFactory
       return unless parameter.configurable?
 
       define_singleton_method parameter.writer_method do |value|
-        if target.respond_to?(parameter.writer_method)
-          target.send(
-            parameter.writer_method,
-            Values.resolve(value).append_argument(runtime_arguments)
-          )
-        end
+        return unless target.respond_to?(parameter.writer_method)
+
+        target.send(
+          parameter.writer_method,
+          Values.resolve(value).append_argument(runtime_arguments)
+        )
       end
     end
   end
