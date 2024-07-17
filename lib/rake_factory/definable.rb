@@ -3,7 +3,7 @@
 module RakeFactory
   module Definable
     def inherited(inheritor)
-      super(inheritor)
+      super
       inheritor.singleton_class.class_eval do
         define_method :define do |*args, &block|
           inheritor.new(*args, &block).define_on(Rake.application)

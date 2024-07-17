@@ -4,7 +4,7 @@ module RakeFactory
   module Namespaceable
     # rubocop:disable Metrics/MethodLength
     def self.prepended(base)
-      super(base)
+      super
       base.class_eval do
         parameter(:namespace, transform: lambda { |name|
           name = name.to_s if name.is_a?(Symbol)
@@ -25,7 +25,7 @@ module RakeFactory
           super(application)
         end
       else
-        super(application)
+        super
       end
     end
   end

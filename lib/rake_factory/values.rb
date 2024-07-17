@@ -12,8 +12,8 @@ module RakeFactory
     end
 
     module FactoryMethods
-      def dynamic(&block)
-        DynamicValue.new(&block)
+      def dynamic(&)
+        DynamicValue.new(&)
       end
 
       def static(value)

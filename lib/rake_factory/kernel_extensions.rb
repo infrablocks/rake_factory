@@ -3,8 +3,8 @@
 require_relative 'values'
 
 module Kernel
-  def dynamic(&block)
-    RakeFactory::DynamicValue.new(&block)
+  def dynamic(&)
+    RakeFactory::DynamicValue.new(&)
   end
 
   def static(value)

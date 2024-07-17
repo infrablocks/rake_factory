@@ -2,9 +2,9 @@
 
 module RakeFactory
   module Arguments
-    def initialize(*args, &configuration_block)
+    def initialize(*args, &)
       arity = method(:initialize).super_method.arity
-      super(*args.slice(0, arity), &configuration_block)
+      super(*args.slice(0, arity), &)
       process_arguments(args)
     end
 

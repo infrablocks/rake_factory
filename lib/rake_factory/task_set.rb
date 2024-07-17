@@ -20,8 +20,8 @@ module RakeFactory
         @tasks ||= []
       end
 
-      def task(klass, *args, &block)
-        tasks << TaskSpecification.new(klass, args, &block)
+      def task(klass, *args, &)
+        tasks << TaskSpecification.new(klass, args, &)
       end
     end
 

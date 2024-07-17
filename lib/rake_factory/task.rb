@@ -30,11 +30,11 @@ module RakeFactory
       self
     end
 
-    def method_missing(method, *args, &block)
+    def method_missing(method, ...)
       if @task.respond_to?(method)
-        @task.send(method, *args, &block)
+        @task.send(method, ...)
       else
-        super(method, *args, &block)
+        super
       end
     end
 

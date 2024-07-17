@@ -19,8 +19,8 @@ module RakeFactory
       @parameter_set[name.to_sym]
     end
 
-    def each(&block)
-      @parameter_set.values.each(&block)
+    def each(&)
+      @parameter_set.values.each(&)
     end
 
     def update_default_for(name, value)

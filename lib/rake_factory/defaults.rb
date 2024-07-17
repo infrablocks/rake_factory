@@ -15,7 +15,7 @@ module RakeFactory
       include Parameters
 
       def inherited(inheritor)
-        super(inheritor)
+        super
         inheritor.class_eval do
           name_parameter
           argument_names_parameter

@@ -8,9 +8,9 @@ module RakeFactory
       base.extend(ClassMethods)
     end
 
-    def initialize(*args, &configuration_block)
+    def initialize(*args, &)
       arity = method(:initialize).super_method.arity
-      super(*args.slice(0, arity), &configuration_block)
+      super(*args.slice(0, arity), &)
       setup_parameter_defaults
     end
 
